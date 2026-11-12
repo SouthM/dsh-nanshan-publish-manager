@@ -1,0 +1,9 @@
+- insert:
+    - id: nanshan-publish-manager
+      name: '@wangnanshan/dsh-nanshan-publish-manager'
+      config:
+        # Extra absolute directories scanned for DSH components (dsh.bundle / dsh.client).
+        scanRoots: []
+        maxScanDepth: 2
+        # Set to false to forbid real `npm publish` while keeping dry runs available.
+        allowPublish: true
