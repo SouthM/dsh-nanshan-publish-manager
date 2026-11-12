@@ -1,4 +1,4 @@
-# 【南山】DSH发布管理
+# 【南山】DSH发布Npm助手
 
 把本机开发的 DSH 组件，按 DeepSeek Harness 官方推荐的 npm 包形式发布给其他人安装。
 
@@ -158,7 +158,7 @@ OTP 不是插件强制每次都要填写的字段：
 
 ## 安装
 
-在 Harness 的插件页安装这个 bundle 目录（推荐使用 Harness 的安装入口），安装后左侧栏会出现「【南山】DSH发布管理」图标。
+在 Harness 的插件页安装这个 bundle 目录（推荐使用 Harness 的安装入口），安装后左侧栏会出现「【南山】DSH发布Npm助手」图标。
 
 开发时也可以在 profile 里链接：
 

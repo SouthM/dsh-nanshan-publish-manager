@@ -1,5 +1,5 @@
 /**
- * Host half of 【南山】DSH发布管理.
+ * Host half of 【南山】DSH发布Npm助手.
  *
  * DSH components ship as ordinary npm packages: a bundle declares
  * `dsh.bundle.patch` (a cordis.patch.yml row) and, when it draws UI, a

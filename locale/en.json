@@ -1,8 +1,8 @@
 {
   "meta": {
-    "title": "Nanshan DSH publish manager",
+    "title": "Nanshan DSH npm publish assistant",
     "description": "Publish locally developed DSH components as npm packages: component cards, release settings, publish pre-checks, and a publish history."
   },
-  "title": "Nanshan DSH publish manager",
+  "title": "Nanshan DSH npm publish assistant",
   "description": "Publish locally developed DSH components as npm packages: component cards, release settings, publish pre-checks, and a publish history."
 }

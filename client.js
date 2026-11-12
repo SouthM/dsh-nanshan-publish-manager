@@ -12,8 +12,8 @@ window.__ModuleLoader__.load({
 
     const DICTIONARIES = {
       zh: {
-        'nav.title': '【南山】DSH发布管理',
-        'page.title': '【南山】DSH发布管理',
+        'nav.title': '【南山】DSH发布Npm助手',
+        'page.title': '【南山】DSH发布Npm助手',
         'page.subtitle': '把本机 DSH 组件按官方 npm 形式发布：配置、预检查、发布与记录。',
         'page.footnote': '官方发布形式：npm 包 + cordis.patch.yml（dsh.bundle）+ dsh.client。发布后，其他人可以在 DSH 插件页安装这个包名，组件就能直接使用。',
         'page.npmMissing': '没有找到 npm：请先安装 Node.js / npm，再刷新本页。',
@@ -348,8 +348,8 @@ window.__ModuleLoader__.load({
         'checkDetail.emptyList': 'npm pack 没有返回文件列表',
       },
       en: {
-        'nav.title': 'Nanshan DSH publishing',
-        'page.title': 'Nanshan DSH publish manager',
+        'nav.title': 'Nanshan DSH npm publish assistant',
+        'page.title': 'Nanshan DSH npm publish assistant',
         'page.subtitle': 'Publish local DSH components the official npm way: configure, pre-check, publish, and record.',
         'page.footnote': 'Official bundle form: an npm package with cordis.patch.yml (dsh.bundle) and dsh.client. Once published, anyone can install the package from the DSH plugin page.',
         'page.npmMissing': 'npm was not found. Install Node.js / npm, then refresh this page.',
