@@ -78,7 +78,7 @@ export function apply(ctx, config = {}) {
     registry: typeof config?.registry === 'string' && config.registry.trim() !== '' ? config.registry.trim() : null,
   }
 
-  const state = { version: STATE_VERSION, records: {}, settings: {}, targets: [] }
+  const state = { version: STATE_VERSION, records: {}, settings: {}, targets: [], tokens: [] }
   let loaded = false
   let chain = Promise.resolve()
   let discoveryCache = { at: 0, value: null }
@@ -116,6 +116,9 @@ export function apply(ctx, config = {}) {
       }
       if (Array.isArray(parsed.targets)) {
         state.targets = parsed.targets.filter((value) => typeof value === 'string' && isAbsolute(value))
+      }
+      if (Array.isArray(parsed.tokens)) {
+        state.tokens = parsed.tokens.filter(isTokenShape)
       }
     }
     loaded = true
@@ -1880,6 +1883,111 @@ export function apply(ctx, config = {}) {
     })
   }
 
+  async function npmWhoami() {
+    const npm = await resolveNpm()
+    if (!npm.available) {
+      return { available: false, username: null, npm: null }
+    }
+    const who = await runNpm(['whoami'], { timeoutMs: 30_000 })
+    const username = who.ok ? (firstLine(who.stdout) || firstLine(who.output)) : null
+    return { available: true, username: username || null, npm: npm.version || '' }
+  }
+
+  async function openLoginTerminal() {
+    const npm = await resolveNpm()
+    if (!npm.available) throw httpError(500, '找不到 npm 可执行文件。')
+    const binDir = npm.binDir || dirname(npm.executable)
+    const taskDir = join(dataDir, 'terminal', randomUUID())
+    await mkdir(taskDir, { recursive: true })
+    const scriptPath = join(taskDir, process.platform === 'win32' ? 'login.cmd' : 'login.command')
+    let script
+    if (process.platform === 'win32') {
+      const q = cmdQuote
+      const lines = [
+        '@echo off',
+        'chcp 65001 >nul',
+        'setlocal',
+        `set "PATH=${String(binDir).replace(/%/g, '%%')};%PATH%"`,
+        'echo Nanshan DSH publish assistant - npm login',
+        `${q(npm.executable)} login`,
+        'echo.',
+        'echo Login finished. Close this window when done.',
+        'pause',
+        'exit /b %ERRORLEVEL%',
+        '',
+      ]
+      script = lines.join('\r\n')
+    } else {
+      const q = shellQuote
+      const lines = [
+        '#!/bin/bash',
+        `export PATH=${q(binDir)}:"$PATH"`,
+        'printf "Nanshan DSH publish assistant - npm login\\n"',
+        `${q(npm.executable)} login`,
+        'printf "\\n登录结束，按任意键关闭窗口…\\n"',
+        'read -n 1 -s -r',
+        'exit 0',
+        '',
+      ]
+      script = lines.join('\n')
+    }
+    await writeFile(scriptPath, script, { encoding: 'utf8', mode: 0o700 })
+    const terminalName = await openSystemTerminal(scriptPath)
+    return { terminal: terminalName }
+  }
+
+  function maskToken(value) {
+    const text = String(value || '')
+    if (text.length <= 8) return '••••••'
+    return `${text.slice(0, 4)}…${text.slice(-4)}`
+  }
+
+  async function listTokens() {
+    await ensureState()
+    return state.tokens.map((token) => ({ id: token.id, name: token.name, masked: maskToken(token.value), createdAt: token.createdAt || '' }))
+  }
+
+  async function saveToken(input) {
+    await ensureState()
+    const name = typeof input.name === 'string' ? input.name.trim().slice(0, 60) : ''
+    const value = typeof input.value === 'string' ? input.value.trim() : ''
+    if (name === '') throw httpError(400, '请填写令牌名称。')
+    if (!validAccessToken(value)) throw httpError(400, '令牌格式不正确：不能包含空白或换行。')
+    const id = typeof input.id === 'string' && input.id !== '' ? input.id : null
+    await exclusive(async () => {
+      if (id) {
+        const existing = state.tokens.find((token) => token.id === id)
+        if (!existing) throw httpError(404, '找不到要更新的令牌。')
+        existing.name = name
+        existing.value = value
+      } else {
+        state.tokens.push({ id: randomUUID(), name, value, createdAt: new Date().toISOString() })
+      }
+      await persist()
+    })
+    return listTokens()
+  }
+
+  async function deleteToken(input) {
+    await ensureState()
+    const id = typeof input.id === 'string' ? input.id : ''
+    await exclusive(async () => {
+      const before = state.tokens.length
+      state.tokens = state.tokens.filter((token) => token.id !== id)
+      if (state.tokens.length === before && id !== '') throw httpError(404, '找不到要删除的令牌。')
+      await persist()
+    })
+    return listTokens()
+  }
+
+  async function revealToken(input) {
+    await ensureState()
+    const id = typeof input.id === 'string' ? input.id : ''
+    const token = state.tokens.find((entry) => entry.id === id)
+    if (!token) throw httpError(404, '找不到该令牌。')
+    return { value: token.value }
+  }
+
   async function handler(request, response) {
     let url
     try {
@@ -1911,6 +2019,12 @@ export function apply(ctx, config = {}) {
         if (pathname === `${API}/downloads`) {
           return sendJson(response, 200, { ok: true, ...(await getDownloads(url.searchParams.get('dir'))) })
         }
+        if (pathname === `${API}/whoami`) {
+          return sendJson(response, 200, { ok: true, ...(await npmWhoami()) })
+        }
+        if (pathname === `${API}/tokens`) {
+          return sendJson(response, 200, { ok: true, tokens: await listTokens() })
+        }
         return sendJson(response, 404, { ok: false, code: 'not-found', message: '未知的发布管理接口。' })
       }
       if (request.method !== 'POST') {
@@ -1940,6 +2054,16 @@ export function apply(ctx, config = {}) {
       }
       if (pathname === `${API}/publish-terminal`) {
         return sendJson(response, 200, { ok: true, ...(await publishInTerminal(body || {})) })
+      }
+      if (pathname === `${API}/npm-login`) {
+        return sendJson(response, 200, { ok: true, ...(await openLoginTerminal()) })
+      }
+      if (pathname === `${API}/tokens`) {
+        const action = body && body.action
+        if (action === 'save') return sendJson(response, 200, { ok: true, tokens: await saveToken(body || {}) })
+        if (action === 'delete') return sendJson(response, 200, { ok: true, tokens: await deleteToken(body || {}) })
+        if (action === 'reveal') return sendJson(response, 200, { ok: true, ...(await revealToken(body || {})) })
+        return sendJson(response, 400, { ok: false, code: 'bad-action', message: '未知的令牌操作。' })
       }
       return sendJson(response, 404, { ok: false, code: 'not-found', message: '未知的发布管理接口。' })
     } catch (error) {
@@ -2228,6 +2352,10 @@ function normalizeCheckSummary(value) {
 
 function validAccessToken(value) {
   return typeof value === 'string' && /^[A-Za-z0-9._~+/=-]{20,512}$/.test(value.trim())
+}
+
+function isTokenShape(value) {
+  return value && typeof value === 'object' && typeof value.id === 'string' && value.id !== '' && typeof value.name === 'string' && value.name !== '' && typeof value.value === 'string' && validAccessToken(value.value)
 }
 
 function isValidVersion(value) {

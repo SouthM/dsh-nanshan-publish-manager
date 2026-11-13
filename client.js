@@ -233,6 +233,8 @@ window.__ModuleLoader__.load({
         'help.oidc.trusted': '然后在 npm 包的 Settings → Trusted Publisher 绑定仓库/工作流。本地 DSH 没有 OIDC 环境，无法使用。',
         'auth.showToken': '显示',
         'auth.hideToken': '隐藏',
+        'auth.pickToken': '选择令牌',
+        'auth.pickTokenEmpty': '暂无已保存的令牌',
         'modal.authNote': '验证方式：{mode}。凭据只用于本次发布，不会保存或写入记录。',
         'field.accessToken': '访问令牌',
         'check.token-format.label': 'Granular Token 已填写',
@@ -293,6 +295,28 @@ window.__ModuleLoader__.load({
         'synopsis.lastPublish': '最近发布',
         'synopsis.npm': 'npm 状态',
         'synopsis.npmUser': '已登录 {name}',
+        'npmLogin.button': '未登录NPM',
+        'npmLogin.opening': '打开终端…',
+        'npmLogin.opened': '已打开终端，请在终端完成 npm login',
+        'npmLogin.timeout': 'npm login 超时，请点击刷新按钮重新检查',
+        'npmUser.label': 'NPM用户：',
+        'settings.button': '设置',
+        'settings.title': '设置',
+        'settings.group.tokens': '令牌设置',
+        'settings.tokens.title': '令牌管理',
+        'settings.tokens.security': '令牌将保存在本机配置文件中，请妥善保管。',
+        'settings.tokens.add': '添加令牌',
+        'settings.tokens.name': '令牌名称',
+        'settings.tokens.namePlaceholder': '例如：公司 CI、个人发布',
+        'settings.tokens.value': '令牌值',
+        'settings.tokens.valuePlaceholder': '粘贴 Granular Access Token',
+        'settings.tokens.save': '保存',
+        'settings.tokens.cancel': '取消',
+        'settings.tokens.edit': '编辑',
+        'settings.tokens.delete': '删除',
+        'settings.tokens.empty': '暂无令牌，点击「添加令牌」录入。',
+        'settings.tokens.needName': '请填写令牌名称。',
+        'settings.tokens.needValue': '令牌格式不正确：不能包含空白或换行。',
         'synopsis.npmUnknown': '未确认登录状态',
         'synopsis.npmIdle': '运行发布预检查后确认',
         'synopsis.never': '尚未发布',
@@ -575,6 +599,8 @@ window.__ModuleLoader__.load({
         'help.oidc.trusted': 'Then bind the repository/workflow under the npm package Settings → Trusted Publisher. Local DSH has no OIDC environment, so it is unavailable here.',
         'auth.showToken': 'Show',
         'auth.hideToken': 'Hide',
+        'auth.pickToken': 'Choose token',
+        'auth.pickTokenEmpty': 'No saved tokens',
         'modal.authNote': 'Authentication: {mode}. Credentials are used for this publish only and are never saved or recorded.',
         'field.accessToken': 'Access token',
         'check.token-format.label': 'Granular token provided',
@@ -635,6 +661,28 @@ window.__ModuleLoader__.load({
         'synopsis.lastPublish': 'Last publish',
         'synopsis.npm': 'npm',
         'synopsis.npmUser': 'Signed in as {name}',
+        'npmLogin.button': 'Not signed in',
+        'npmLogin.opening': 'Opening…',
+        'npmLogin.opened': 'Terminal opened — complete npm login there',
+        'npmLogin.timeout': 'npm login timed out — refresh to check again',
+        'npmUser.label': 'npm user:',
+        'settings.button': 'Settings',
+        'settings.title': 'Settings',
+        'settings.group.tokens': 'Token settings',
+        'settings.tokens.title': 'Manage tokens',
+        'settings.tokens.security': 'Tokens are stored in the local config file. Keep them safe.',
+        'settings.tokens.add': 'Add token',
+        'settings.tokens.name': 'Token name',
+        'settings.tokens.namePlaceholder': 'e.g. Company CI, personal',
+        'settings.tokens.value': 'Token value',
+        'settings.tokens.valuePlaceholder': 'Paste granular access token',
+        'settings.tokens.save': 'Save',
+        'settings.tokens.cancel': 'Cancel',
+        'settings.tokens.edit': 'Edit',
+        'settings.tokens.delete': 'Delete',
+        'settings.tokens.empty': 'No tokens yet. Click “Add token” to create one.',
+        'settings.tokens.needName': 'Please enter a token name.',
+        'settings.tokens.needValue': 'Token format is invalid: must not contain whitespace or newlines.',
         'synopsis.npmUnknown': 'Login not confirmed',
         'synopsis.npmIdle': 'Confirm with the publish pre-check',
         'synopsis.never': 'Not published yet',
@@ -780,6 +828,8 @@ window.__ModuleLoader__.load({
 .np-card__open{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:500;color:var(--np-accent)}
 .np-chip{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border:1px solid var(--np-line);border-radius:6px;background:transparent;font-size:11px;font-weight:500;line-height:1;color:var(--np-ink-soft);white-space:nowrap}
 .np-chip--ok{color:var(--np-ok);border-color:color-mix(in srgb,var(--np-ok) 35%,var(--np-line));background:color-mix(in srgb,var(--np-ok) 7%,transparent)}
+.np-npm-user{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid color-mix(in srgb,var(--np-ok) 35%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-ok) 8%,var(--np-sheet));color:var(--np-ok);font-size:13px;font-weight:600;line-height:1;white-space:nowrap}
+.np-npm-user__label{color:var(--np-ink-soft);font-weight:500}
 .np-chip--warn{color:var(--np-warn);border-color:color-mix(in srgb,var(--np-warn) 35%,var(--np-line));background:color-mix(in srgb,var(--np-warn) 7%,transparent)}
 .np-chip--fail{color:var(--np-bad);border-color:color-mix(in srgb,var(--np-bad) 35%,var(--np-line));background:color-mix(in srgb,var(--np-bad) 7%,transparent)}
 .np-chip--accent{color:var(--np-accent);border-color:color-mix(in srgb,var(--np-accent) 35%,var(--np-line));background:color-mix(in srgb,var(--np-accent) 7%,transparent)}
@@ -862,6 +912,14 @@ window.__ModuleLoader__.load({
 .np-tokenrow{display:flex;align-items:center;gap:6px}
 .np-tokenrow .np-input{flex:1;min-width:0}
 .np-tokenrow .np-btn{flex:none}
+.np-btn--icon{width:26px;padding:0;justify-content:center}
+.np-tokenpick{position:relative;flex:none}
+.np-tokenmenu{position:absolute;top:calc(100% + 4px);right:0;z-index:40;min-width:200px;max-width:280px;max-height:240px;overflow:auto;padding:4px;border:1px solid var(--np-line-strong);border-radius:8px;background:var(--np-sheet);box-shadow:var(--np-shadow);display:flex;flex-direction:column;gap:2px}
+.np-tokenmenu__item{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;padding:7px 8px;border:none;border-radius:6px;background:transparent;color:var(--np-ink);font:inherit;text-align:left;cursor:pointer}
+.np-tokenmenu__item:hover{background:var(--np-sheet2)}
+.np-tokenmenu__name{font-size:12px;font-weight:500}
+.np-tokenmenu__masked{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:var(--np-ink-soft)}
+.np-tokenmenu__empty{padding:8px;font-size:12px;color:var(--np-ink-soft)}
 .np-checks__summary{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:2px}
 .np-checks__counts{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;font-weight:500}
 .np-checks__counts .is-ok{color:var(--np-ok)}
@@ -961,6 +1019,25 @@ window.__ModuleLoader__.load({
 .np-success__head h2{margin:0;flex:1;min-width:0}
 .np-success__icon{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--np-ok) 14%,transparent);color:var(--np-ok)}
 .np-success__detail{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:var(--np-ink);font-weight:600;word-break:break-all;user-select:text}
+.np-dialog--settings{width:min(880px,100%);max-height:min(760px,calc(100vh - 40px));display:flex;flex-direction:column;overflow:hidden}
+.np-settings__body{flex:1;display:flex;min-height:0}
+.np-settings__side{flex:none;width:200px;border-right:1px solid var(--np-line);padding:16px 10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.np-settings__group{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--np-ink-soft);font-size:13px;font-weight:500;text-align:left;cursor:pointer}
+.np-settings__group:hover{background:color-mix(in srgb,var(--np-ink) 4%,transparent)}
+.np-settings__group--active{background:color-mix(in srgb,var(--np-accent) 10%,transparent);border-color:color-mix(in srgb,var(--np-accent) 30%,var(--np-line));color:var(--np-accent)}
+.np-settings__main{flex:1;min-width:0;padding:20px 24px;overflow-y:auto}
+.np-settings__subtitle{margin:0;flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--np-ink)}
+.np-settings__hint{margin:0 0 14px;font-size:12px;line-height:1.6;color:var(--np-ink-soft)}
+.np-settings__warn{display:flex;align-items:flex-start;gap:8px;margin:14px 0 16px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--np-bad) 40%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-bad) 8%,transparent);font-size:12px;line-height:1.6;color:var(--np-bad);font-weight:500}
+.np-settings__warn .np-ico{flex:none;margin-top:1px;color:var(--np-bad)}
+.np-settings__empty{padding:28px 0;text-align:center;color:var(--np-ink-soft);font-size:13px}
+.np-tokenlist{display:flex;flex-direction:column;gap:8px}
+.np-tokenitem{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--np-line);border-radius:8px;background:var(--np-sheet)}
+.np-tokenitem__body{flex:1;min-width:0}
+.np-tokenitem__name{font-size:13px;font-weight:600;color:var(--np-ink)}
+.np-tokenitem__masked{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--np-ink-soft);white-space:nowrap}
+.np-tokenform{margin-bottom:14px;padding:14px;border:1px solid var(--np-line);border-radius:10px;background:color-mix(in srgb,var(--np-ink) 2%,transparent)}
+.np-error{margin:0 0 10px;font-size:12px;line-height:1.5;color:var(--np-bad)}
 .np-info__head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .np-info__intro{margin:8px 0 4px;font-size:12.5px;line-height:1.65;color:var(--np-ink-soft)}
 .np-info__title{margin:14px 0 6px;font-size:12px;font-weight:600;line-height:1.3;color:var(--np-ink)}
@@ -1358,6 +1435,23 @@ window.__ModuleLoader__.load({
         ['path', { d: 'M2.6 4.9 8 2.4l5.4 2.5v5.9L8 13.5l-5.4-2.7v-5.9Z' }],
         ['path', { d: 'M8 6.1v4.4M6.3 8.9 8 10.6l1.7-1.7' }],
       ],
+      gear: [
+        ['circle', { cx: 8, cy: 8, r: 2.2 }],
+        ['path', { d: 'M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M3.9 3.9l1.1 1.1M11 11l1.1 1.1M12.1 3.9 11 5M5 11l-1.1 1.1' }],
+      ],
+      eye: [
+        ['path', { d: 'M2.4 8s2.4-4 5.6-4 5.6 4 5.6 4-2.4 4-5.6 4-5.6-4-5.6-4Z' }],
+        ['circle', { cx: 8, cy: 8, r: 1.6 }],
+      ],
+      eyeOff: [
+        ['path', { d: 'M2.4 8s2.4-4 5.6-4 5.6 4 5.6 4-2.4 4-5.6 4-5.6-4-5.6-4Z' }],
+        ['path', { d: 'M3.5 3.5l9 9' }],
+      ],
+      key: [
+        ['circle', { cx: 5.6, cy: 10.4, r: 2.2 }],
+        ['path', { d: 'M7.2 8.8 13 3' }],
+        ['path', { d: 'M10.4 5.6 12 7.2M12 4l1.6 1.6' }],
+      ],
     }
 
     function Glyph(props) {
@@ -1677,6 +1771,141 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function SettingsModal(props) {
+      const [t, tr] = useText()
+      const [group, setGroup] = React.useState('tokens')
+      const [tokens, setTokens] = React.useState(null)
+      const [tokenBusy, setTokenBusy] = React.useState(false)
+      const [draft, setDraft] = React.useState(null)
+      const [showValue, setShowValue] = React.useState(false)
+      const [tokenError, setTokenError] = React.useState('')
+
+      const loadTokens = React.useCallback(async () => {
+        try {
+          const data = await apiGet('/tokens')
+          setTokens(Array.isArray(data.tokens) ? data.tokens : [])
+        } catch {
+          setTokens([])
+        }
+      }, [])
+
+      React.useEffect(() => {
+        if (props.open) loadTokens()
+      }, [props.open, loadTokens])
+
+      React.useEffect(() => {
+        if (!props.open) return
+        const onKeyDown = (event) => { if (event.key === 'Escape') props.onClose() }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+      }, [props.open, props.onClose])
+
+      if (!props.open) return null
+
+      async function submitToken() {
+        if (!draft) return
+        const name = draft.name.trim()
+        const value = draft.value.trim()
+        if (name === '') { setTokenError(t('settings.tokens.needName')); return }
+        if (!validToken(value)) { setTokenError(t('settings.tokens.needValue')); return }
+        setTokenBusy(true)
+        setTokenError('')
+        try {
+          const data = await apiPost('/tokens', { action: 'save', id: draft.id || undefined, name, value })
+          setTokens(Array.isArray(data.tokens) ? data.tokens : [])
+          setDraft(null)
+          setShowValue(false)
+        } catch (failure) {
+          setTokenError(failure && failure.message ? failure.message : tr('common.error'))
+        } finally {
+          setTokenBusy(false)
+        }
+      }
+
+      async function removeToken(token) {
+        setTokenBusy(true)
+        setTokenError('')
+        try {
+          const data = await apiPost('/tokens', { action: 'delete', id: token.id })
+          setTokens(Array.isArray(data.tokens) ? data.tokens : [])
+          if (draft && draft.id === token.id) { setDraft(null); setShowValue(false) }
+        } catch (failure) {
+          setTokenError(failure && failure.message ? failure.message : tr('common.error'))
+        } finally {
+          setTokenBusy(false)
+        }
+      }
+
+      const groups = [{ id: 'tokens', icon: 'lock', label: t('settings.group.tokens') }]
+
+      return h('div', { className: 'np-modal', role: 'presentation', onMouseDown: (event) => { if (event.target === event.currentTarget) props.onClose() } },
+        h('div', { className: 'np-dialog np-dialog--settings', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-settings-title' },
+          h('div', { className: 'np-info__head' },
+            h('h2', { id: 'np-settings-title' }, t('settings.title')),
+            h('button', { type: 'button', className: 'np-iconbtn', onClick: props.onClose, 'aria-label': t('action.close') }, h(Glyph, { name: 'close', size: 14 })),
+          ),
+          h('div', { className: 'np-settings__body' },
+            h('nav', { className: 'np-settings__side' },
+              groups.map((item) => h('button', {
+                key: item.id,
+                type: 'button',
+                className: `np-settings__group${group === item.id ? ' np-settings__group--active' : ''}`,
+                onClick: () => setGroup(item.id),
+              }, h(Glyph, { name: item.icon, size: 15 }), item.label)),
+            ),
+            h('div', { className: 'np-settings__main' },
+              group === 'tokens'
+                ? h('div', null,
+                  h('div', { className: 'np-info__head' },
+                    h('h3', { className: 'np-settings__subtitle' }, t('settings.tokens.title')),
+                    h('button', { type: 'button', className: 'np-btn np-btn--small', onClick: () => { setDraft({ id: null, name: '', value: '' }); setTokenError(''); setShowValue(false) } }, h(Glyph, { name: 'plus', size: 13 }), t('settings.tokens.add')),
+                  ),
+                  h('p', { className: 'np-settings__warn' },
+                    h('span', { className: 'np-ico', 'aria-hidden': 'true' }, h(Glyph, { name: 'alert', size: 14 })),
+                    h('span', null, t('settings.tokens.security')),
+                  ),
+                  tokenError ? h('p', { className: 'np-error' }, tokenError) : null,
+                  draft
+                    ? h('div', { className: 'np-tokenform' },
+                      h('div', { className: 'np-field' },
+                        h('label', { className: 'np-label' }, t('settings.tokens.name')),
+                        h('input', { className: 'np-input', value: draft.name, placeholder: t('settings.tokens.namePlaceholder'), autoFocus: true, onChange: (event) => setDraft({ ...draft, name: event.target.value }) }),
+                      ),
+                      h('div', { className: 'np-field' },
+                        h('label', { className: 'np-label' }, t('settings.tokens.value')),
+                        h('div', { className: 'np-tokenrow' },
+                          h('input', { className: 'np-input np-mono', type: showValue ? 'text' : 'password', value: draft.value, placeholder: t('settings.tokens.valuePlaceholder'), autoComplete: 'off', spellCheck: false, onChange: (event) => setDraft({ ...draft, value: event.target.value.replace(/\s+/g, '') }) }),
+                          h('button', { type: 'button', className: 'np-btn np-btn--small', onClick: () => setShowValue((value) => !value) }, showValue ? t('auth.hideToken') : t('auth.showToken')),
+                        ),
+                      ),
+                      h('div', { className: 'np-dialog__actions' },
+                        h('button', { type: 'button', className: 'np-btn', onClick: () => { setDraft(null); setShowValue(false); setTokenError('') } }, t('settings.tokens.cancel')),
+                        h('button', { type: 'button', className: 'np-btn np-btn--primary', disabled: tokenBusy, onClick: submitToken }, tokenBusy ? t('action.saving') : t('settings.tokens.save')),
+                      ),
+                    )
+                    : null,
+                  tokens === null
+                    ? h('p', { className: 'np-settings__empty' }, t('common.loading'))
+                    : tokens.length === 0
+                      ? h('p', { className: 'np-settings__empty' }, t('settings.tokens.empty'))
+                      : h('div', { className: 'np-tokenlist' },
+                        tokens.map((token) => h('div', { key: token.id, className: 'np-tokenitem' },
+                          h('div', { className: 'np-tokenitem__body' },
+                            h('div', { className: 'np-tokenitem__name' }, token.name),
+                            h('div', { className: 'np-tokenitem__masked' }, token.masked),
+                          ),
+                          h('button', { type: 'button', className: 'np-btn np-btn--small', onClick: () => { setDraft({ id: token.id, name: token.name, value: '' }); setTokenError(''); setShowValue(false) } }, t('settings.tokens.edit')),
+                          h('button', { type: 'button', className: 'np-btn np-btn--small np-btn--danger', disabled: tokenBusy, onClick: () => removeToken(token) }, t('settings.tokens.delete')),
+                        )),
+                      ),
+                )
+                : null,
+            ),
+          ),
+        ),
+      )
+    }
+
     function useToast() {
       const [toast, setToast] = React.useState(null)
       const timer = React.useRef(null)
@@ -1764,6 +1993,61 @@ window.__ModuleLoader__.load({
       const [t, tr] = useText()
       const [query, setQuery] = React.useState('')
       const [filter, setFilter] = React.useState('all')
+      const [settingsOpen, setSettingsOpen] = React.useState(false)
+      const [npmUser, setNpmUser] = React.useState(null)
+      const [npmUserBusy, setNpmUserBusy] = React.useState('loading')
+      const loginPollRef = React.useRef(null)
+
+      const checkWhoami = React.useCallback(async () => {
+        const data = await apiGet('/whoami')
+        return data && data.username ? data.username : null
+      }, [])
+
+      React.useEffect(() => {
+        let cancelled = false
+        checkWhoami()
+          .then((name) => { if (!cancelled) setNpmUser(name) })
+          .catch(() => { if (!cancelled) setNpmUser(null) })
+          .finally(() => { if (!cancelled) setNpmUserBusy('') })
+        return () => {
+          cancelled = true
+          if (loginPollRef.current) clearInterval(loginPollRef.current)
+        }
+      }, [checkWhoami])
+
+      async function startLogin() {
+        setNpmUserBusy('login')
+        try {
+          await apiPost('/npm-login', {})
+          props.showToast('ok', tr('npmLogin.opened'))
+          const startedAt = Date.now()
+          if (loginPollRef.current) clearInterval(loginPollRef.current)
+          loginPollRef.current = setInterval(async () => {
+            let name = null
+            try {
+              name = await checkWhoami()
+            } catch {
+              name = null
+            }
+            if (name) {
+              clearInterval(loginPollRef.current)
+              loginPollRef.current = null
+              setNpmUser(name)
+              setNpmUserBusy('')
+              props.showToast('ok', tr('synopsis.npmUser', { name }))
+            } else if (Date.now() - startedAt > 120_000) {
+              clearInterval(loginPollRef.current)
+              loginPollRef.current = null
+              setNpmUserBusy('')
+              props.showToast('error', tr('npmLogin.timeout'))
+            }
+          }, 2500)
+        } catch (failure) {
+          setNpmUserBusy('')
+          props.showToast('error', failure && failure.message ? failure.message : tr('common.error'))
+        }
+      }
+
       const overview = props.overview
       const components = (overview && Array.isArray(overview.components)) ? overview.components : []
       const filtered = React.useMemo(
@@ -1793,6 +2077,21 @@ window.__ModuleLoader__.load({
             ),
           ),
           h('div', { className: 'np__actions' },
+            npmUser
+              ? h('span', { className: 'np-npm-user', title: tr('synopsis.npmUser', { name: npmUser }) },
+                h(Glyph, { name: 'check', size: 14 }),
+                h('span', { className: 'np-npm-user__label' }, t('npmUser.label')),
+                h('span', null, npmUser),
+              )
+              : h('button', {
+                type: 'button',
+                className: 'np-btn',
+                disabled: npmUserBusy !== '',
+                onClick: startLogin,
+              }, npmUserBusy !== ''
+                ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' })
+                : h(Glyph, { name: 'lock', size: 14 }),
+                npmUserBusy === 'login' ? t('npmLogin.opening') : t('npmLogin.button')),
             h('button', {
               type: 'button',
               className: 'np-btn',
@@ -1805,6 +2104,11 @@ window.__ModuleLoader__.load({
               disabled: props.status === 'refreshing' || loading,
               onClick: props.onRefresh,
             }, h(Glyph, { name: 'refresh', size: 14, className: props.status === 'refreshing' ? 'np-spin' : undefined }), props.status === 'refreshing' ? t('action.refreshing') : t('action.refresh')),
+            h('button', {
+              type: 'button',
+              className: 'np-btn',
+              onClick: () => setSettingsOpen(true),
+            }, h(Glyph, { name: 'gear', size: 14 }), t('settings.button')),
           ),
         ),
 
@@ -1885,6 +2189,7 @@ window.__ModuleLoader__.load({
             ? h('span', { className: 'np-chip' }, `npm ${overview.npm.version || ''}`)
             : null,
         ),
+        h(SettingsModal, { open: settingsOpen, onClose: () => setSettingsOpen(false) }),
         h(Toast, { toast: props.toast }),
       )
     }
@@ -1919,6 +2224,31 @@ window.__ModuleLoader__.load({
       const tokenInputRef = React.useRef(null)
       const payloadRef = React.useRef(null)
       const dir = props.dir
+
+      const [tokenLibrary, setTokenLibrary] = React.useState([])
+      const [tokenSelectBusy, setTokenSelectBusy] = React.useState(false)
+      const [tokenMenuOpen, setTokenMenuOpen] = React.useState(false)
+
+      React.useEffect(() => {
+        let cancelled = false
+        apiGet('/tokens')
+          .then((data) => { if (!cancelled) setTokenLibrary(Array.isArray(data.tokens) ? data.tokens : []) })
+          .catch(() => {})
+        return () => { cancelled = true }
+      }, [])
+
+      async function selectFromLibrary(id) {
+        if (!id) return
+        setTokenSelectBusy(true)
+        try {
+          const data = await apiPost('/tokens', { action: 'reveal', id })
+          if (data && typeof data.value === 'string') setAccessToken(data.value)
+        } catch (failure) {
+          showToast('error', failure && failure.message ? failure.message : t('common.error'))
+        } finally {
+          setTokenSelectBusy(false)
+        }
+      }
 
       const load = React.useCallback(async (signal) => {
         setStatus(payloadRef.current ? 'refreshing' : 'loading')
@@ -2594,9 +2924,37 @@ window.__ModuleLoader__.load({
                     }),
                     h('button', {
                       type: 'button',
-                      className: 'np-btn np-btn--small',
+                      className: 'np-btn np-btn--small np-btn--icon',
+                      'aria-label': showToken ? t('auth.hideToken') : t('auth.showToken'),
+                      title: showToken ? t('auth.hideToken') : t('auth.showToken'),
                       onClick: () => setShowToken((value) => !value),
-                    }, showToken ? t('auth.hideToken') : t('auth.showToken')),
+                    }, h(Glyph, { name: showToken ? 'eyeOff' : 'eye', size: 14 })),
+                    h('div', { className: 'np-tokenpick' },
+                      h('button', {
+                        type: 'button',
+                        className: 'np-btn np-btn--small np-btn--icon',
+                        'aria-label': t('auth.pickToken'),
+                        title: t('auth.pickToken'),
+                        disabled: tokenSelectBusy,
+                        onClick: () => setTokenMenuOpen((value) => !value),
+                      }, h(Glyph, { name: 'key', size: 14 })),
+                      tokenMenuOpen
+                        ? h('div', { className: 'np-tokenmenu', role: 'menu' },
+                          tokenLibrary.length > 0
+                            ? tokenLibrary.map((token) => h('button', {
+                              key: token.id,
+                              type: 'button',
+                              className: 'np-tokenmenu__item',
+                              role: 'menuitem',
+                              onClick: () => { selectFromLibrary(token.id); setTokenMenuOpen(false) },
+                            },
+                              h('span', { className: 'np-tokenmenu__name' }, token.name),
+                              h('span', { className: 'np-tokenmenu__masked' }, token.masked),
+                            ))
+                            : h('div', { className: 'np-tokenmenu__empty' }, t('auth.pickTokenEmpty')),
+                        )
+                        : null,
+                    ),
                   ),
                   h('span', { className: 'np-hint' }, t('auth.tokenHint')),
                 )
@@ -3018,6 +3376,7 @@ window.__ModuleLoader__.load({
               error,
               adding,
               toast,
+              showToast,
               onOpen: openDetail,
               onRefresh: () => load({ force: true }),
               onAdd: addComponent,
