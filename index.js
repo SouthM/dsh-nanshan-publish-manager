@@ -85,6 +85,7 @@ export function apply(ctx, config = {}) {
   let overviewCache = { at: 0, value: null }
   let npmCache = { at: 0, value: null }
   const downloadsCache = new Map()
+  const totalsCache = new Map()
   let npmrcRegistry = null
   const publishing = new Set()
 
@@ -1726,31 +1727,96 @@ export function apply(ctx, config = {}) {
     }
   }
 
+  async function fetchTotalAllTime(name, end) {
+    const cached = totalsCache.get(name)
+    if (cached && Date.now() - cached.at < cached.ttl) return cached.value
+    const remember = (value, ttl) => {
+      totalsCache.set(name, { at: Date.now(), ttl, value })
+      return value
+    }
+    const rangeTotal = async (from, to) => {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 15_000)
+      let response
+      try {
+        response = await fetch(`https://api.npmjs.org/downloads/range/${encodeURIComponent(from)}:${encodeURIComponent(to)}/${encodeURIComponent(name)}`, {
+          signal: controller.signal,
+          headers: { accept: 'application/json' },
+        })
+      } catch {
+        return null
+      } finally {
+        clearTimeout(timer)
+      }
+      if (!response.ok) return null
+      const data = await response.json().catch(() => null)
+      if (!data || !Array.isArray(data.downloads)) return null
+      return data.downloads.reduce((sum, point) => sum + (Number(point && point.downloads) || 0), 0)
+    }
+    // 以包首次发布时间为统计起点，避免从一个固定旧年份空跑请求。
+    let created = null
+    try {
+      const metaResponse = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, {
+        headers: { accept: 'application/json' },
+      })
+      if (metaResponse.ok) {
+        const meta = await metaResponse.json().catch(() => null)
+        if (meta && meta.time && meta.time.created) {
+          const parsed = new Date(meta.time.created)
+          if (!Number.isNaN(parsed.getTime())) created = parsed
+        }
+      }
+    } catch {
+      created = null
+    }
+    if (!created) return remember(null, 60 * 60_000)
+    let sum = 0
+    let cursor = new Date(created)
+    const last = new Date(`${end}T00:00:00Z`)
+    while (cursor.getTime() <= last.getTime()) {
+      const chunkEnd = new Date(Math.min(cursor.getTime() + 499 * 86_400_000, last.getTime()))
+      const part = await rangeTotal(localDateString(cursor), localDateString(chunkEnd))
+      if (part != null) sum += part
+      cursor = new Date(chunkEnd.getTime() + 86_400_000)
+    }
+    return remember(sum, 60 * 60_000)
+  }
+
   async function getDownloads(rawDir) {
     const { pkg } = await requireComponentDir(rawDir)
     const name = typeof pkg.name === 'string' ? pkg.name : ''
     if (!name) throw httpError(400, '该组件没有可查询的 npm 包名。')
-    const cached = downloadsCache.get(name)
+    // 近 7 天按本机“今天”往前 6 天取显式区间，规避 last-week 的 UTC 滞后窗口，
+    // 让最后一天始终是动态的今天。
+    const today = new Date()
+    const start = localDateString(addDays(today, -6))
+    const end = localDateString(today)
+    const cacheKey = `${name}|${start}|${end}`
+    const cached = downloadsCache.get(cacheKey)
     if (cached && Date.now() - cached.at < cached.ttl) return cached.value
     const remember = (value, ttl) => {
-      downloadsCache.set(name, { at: Date.now(), ttl, value })
+      downloadsCache.set(cacheKey, { at: Date.now(), ttl, value })
       return value
     }
     const unavailable = (message) => remember({
       package: name,
       points: [],
       total: 0,
-      start: null,
-      end: null,
+      totalAllTime: null,
+      start,
+      end,
       unavailable: true,
       error: message,
       fetchedAt: new Date().toISOString(),
     }, 2 * 60_000)
+
+    const totalAllTime = await fetchTotalAllTime(name, end)
+
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 10_000)
     let response
     try {
-      response = await fetch(`https://api.npmjs.org/downloads/range/last-week/${encodeURIComponent(name)}`, {
+      response = await fetch(`https://api.npmjs.org/downloads/range/${encodeURIComponent(start)}:${encodeURIComponent(end)}/${encodeURIComponent(name)}`, {
         signal: controller.signal,
         headers: { accept: 'application/json' },
       })
@@ -1764,8 +1830,9 @@ export function apply(ctx, config = {}) {
         package: name,
         points: [],
         total: 0,
-        start: null,
-        end: null,
+        totalAllTime,
+        start,
+        end,
         unavailable: false,
         empty: true,
         fetchedAt: new Date().toISOString(),
@@ -1778,18 +1845,23 @@ export function apply(ctx, config = {}) {
     } catch {
       return unavailable('npm 下载统计返回了无法解析的数据。')
     }
-    const points = Array.isArray(data.downloads)
-      ? data.downloads.map((point) => ({
-        day: String(point && point.day ? point.day : ''),
-        downloads: Number(point && point.downloads) || 0,
-      }))
-      : []
+    const byDay = new Map()
+    for (const point of (Array.isArray(data.downloads) ? data.downloads : [])) {
+      const day = String(point && point.day ? point.day : '')
+      if (day) byDay.set(day, Number(point && point.downloads) || 0)
+    }
+    const points = []
+    for (let offset = -6; offset <= 0; offset += 1) {
+      const day = localDateString(addDays(today, offset))
+      points.push({ day, downloads: byDay.get(day) || 0 })
+    }
     return remember({
       package: name,
-      start: data.start || (points.length > 0 ? points[0].day : null),
-      end: data.end || (points.length > 0 ? points[points.length - 1].day : null),
+      start,
+      end,
       points,
       total: points.reduce((sum, point) => sum + point.downloads, 0),
+      totalAllTime,
       unavailable: false,
       empty: points.length === 0,
       fetchedAt: new Date().toISOString(),
@@ -2231,4 +2303,17 @@ function clampInt(value, min, max, fallback) {
   const number = Number(value)
   if (!Number.isFinite(number)) return fallback
   return Math.min(max, Math.max(min, Math.trunc(number)))
+}
+
+function addDays(date, days) {
+  const next = new Date(date)
+  next.setDate(next.getDate() + days)
+  return next
+}
+
+function localDateString(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }

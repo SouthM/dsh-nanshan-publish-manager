@@ -1,0 +1,8 @@
+# v1.0.8
+
+## 修复
+- 「NPM信息查询 · 近7天下载」最后一天日期滞后的 bug：改用显式日期区间（本机“今天”往前 6 天）请求 npm downloads range 接口，替代 last-week 的 UTC 滞后窗口，最后一天始终为动态的今天。
+
+## 新增
+- 「近 7 天汇总」数值展示。
+- 「历史总下载量」展示：按包首次发布时间（registry time.created）分段求和 npm downloads。
