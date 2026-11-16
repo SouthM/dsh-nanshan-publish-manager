@@ -458,7 +458,7 @@ export function apply(ctx, config = {}) {
    * variable is the direct route; walking `$DSH_HOME/profiles` keeps discovery
    * working in Host processes that do not inherit it (notably the desktop app).
    */
-  async function profileLinkDirs() {
+  async function profileLinks() {
     const profileDirs = []
     const addProfile = (dir) => {
       if (typeof dir !== 'string' || dir === '' || profileDirs.includes(dir)) return
@@ -474,15 +474,28 @@ export function apply(ctx, config = {}) {
       // A customized DSH_HOME may keep profiles elsewhere; the env value still applies.
     }
     const links = []
+    const seen = new Set()
     for (const profileDir of profileDirs.slice(0, 12)) {
       try {
-        const pkg = JSON.parse(await readFile(join(profileDir, 'package.json'), 'utf8'))
+        const profileFile = join(profileDir, 'package.json')
+        const pkg = JSON.parse(await readFile(profileFile, 'utf8'))
         const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) }
-        for (const spec of Object.values(deps)) {
+        for (const [dependencyName, spec] of Object.entries(deps)) {
           if (typeof spec !== 'string') continue
           const match = /^(?:link|file):(.+)$/.exec(spec)
           if (!match) continue
-          links.push(resolve(profileDir, match[1]))
+          const dir = resolve(profileDir, match[1])
+          const key = `${dir}\0${profileDir}\0${dependencyName}`
+          if (seen.has(key)) continue
+          seen.add(key)
+          links.push({
+            dir,
+            profileDir,
+            profileFile,
+            dependencyName,
+            spec,
+            specKind: spec.startsWith('file:') ? 'file' : 'link',
+          })
         }
       } catch {
         // A profile without a package.json simply has no link dependencies.
@@ -518,30 +531,96 @@ export function apply(ctx, config = {}) {
     const found = new Map()
     const warnings = []
     const visited = new Set()
+    const brokenLinks = []
+    const missingTargets = []
     let scanned = 0
 
-    async function addDir(rawDir, origin) {
+    function addFound(dir, origin, name, source) {
+      let item = found.get(dir)
+      if (!item) {
+        item = { dir, origin, name, sources: [], staleLinks: [], staleTargets: [] }
+        found.set(dir, item)
+      }
+      if (source && !item.sources.some((existing) =>
+        existing.kind === source.kind &&
+        existing.root === source.root &&
+        existing.profileFile === source.profileFile &&
+        existing.dependencyName === source.dependencyName &&
+        existing.target === source.target &&
+        existing.packageFile === source.packageFile,
+      )) {
+        item.sources.push(source)
+      }
+      return item
+    }
+
+    async function addDir(rawDir, origin, source) {
+      const target = expandHome(String(rawDir))
       let dir
       try {
-        dir = await realpath(expandHome(rawDir))
+        dir = await realpath(target)
       } catch {
-        if (origin === 'link') warnings.push(`链接目录不存在：${String(rawDir)}`)
+        const item = {
+          dir: target,
+          origin,
+          name: source && source.dependencyName ? source.dependencyName : basename(target),
+          source,
+          reason: 'missing-directory',
+        }
+        if (origin === 'link') brokenLinks.push(item)
+        else if (origin === 'target') missingTargets.push(item)
         return
       }
-      if (found.has(dir)) return
+      try {
+        const info = await stat(dir)
+        if (!info.isDirectory()) return
+      } catch {
+        return
+      }
       const pkg = await readPackageQuiet(dir)
       if (!pkg) {
-        if (origin === 'link') warnings.push(`没有 package.json：${dir}`)
+        const item = {
+          dir,
+          origin,
+          name: source && source.dependencyName ? source.dependencyName : basename(dir),
+          source,
+          reason: 'not-component',
+        }
+        if (origin === 'link') {
+          brokenLinks.push(item)
+          warnings.push(`没有 package.json：${dir}`)
+        } else if (origin === 'target') {
+          missingTargets.push(item)
+        }
         return
       }
       if (!isDshPackage(pkg)) {
-        if (origin === 'link') warnings.push(`不是 DSH 组件：${typeof pkg.name === 'string' ? pkg.name : dir}`)
+        const item = {
+          dir,
+          origin,
+          name: typeof pkg.name === 'string'
+            ? pkg.name
+            : (source && source.dependencyName ? source.dependencyName : basename(dir)),
+          source,
+          reason: 'not-component',
+        }
+        if (origin === 'link') {
+          brokenLinks.push(item)
+          warnings.push(`不是 DSH 组件：${typeof pkg.name === 'string' ? pkg.name : dir}`)
+        } else if (origin === 'target') {
+          missingTargets.push(item)
+        }
         return
       }
-      found.set(dir, { dir, origin, name: typeof pkg.name === 'string' ? pkg.name : null })
+      addFound(
+        dir,
+        origin,
+        typeof pkg.name === 'string' ? pkg.name : null,
+        source ? { ...source, dir, target: dir, exists: true } : null,
+      )
     }
 
-    async function walk(rootRaw, depthLimit, silent) {
+    async function walk(rootRaw, depthLimit, silent, sourceKind) {
       let root
       try {
         root = await realpath(expandHome(rootRaw))
@@ -557,10 +636,14 @@ export function apply(ctx, config = {}) {
         scanned += 1
         const pkg = await readPackageQuiet(item.dir)
         if (pkg && isDshPackage(pkg)) {
-          found.set(item.dir, {
-            dir: item.dir,
-            origin: 'scan',
-            name: typeof pkg.name === 'string' ? pkg.name : null,
+          addFound(item.dir, 'scan', typeof pkg.name === 'string' ? pkg.name : null, {
+            kind: sourceKind,
+            root,
+            depth: item.depth,
+            packageFile: join(item.dir, 'package.json'),
+            bundle: Boolean(pkg.dsh && pkg.dsh.bundle),
+            client: Boolean(pkg.dsh && pkg.dsh.client),
+            exists: true,
           })
           continue
         }
@@ -579,17 +662,63 @@ export function apply(ctx, config = {}) {
       }
     }
 
-    for (const dir of await profileLinkDirs()) await addDir(dir, 'link')
-    for (const dir of state.targets) await addDir(dir, 'target')
-    for (const root of options.scanRoots) await walk(root, options.maxScanDepth, false)
+    for (const link of await profileLinks()) {
+      await addDir(link.dir, 'link', { kind: 'profile-link', ...link })
+    }
+    for (const target of state.targets) {
+      await addDir(target, 'target', {
+        kind: 'manual-target',
+        target: expandHome(target),
+        stateFile: statePath,
+      })
+    }
+    for (const root of options.scanRoots) await walk(root, options.maxScanDepth, false, 'scan-root')
     for (const root of hostRoots()) {
-      if (scannableRoot(root)) await walk(root, Math.min(options.maxScanDepth, 2), true)
+      if (scannableRoot(root)) await walk(root, Math.min(options.maxScanDepth, 2), true, 'workspace-scan')
     }
     const cwd = process.cwd()
-    if (scannableRoot(cwd)) await walk(cwd, Math.min(options.maxScanDepth, 2), true)
+    if (scannableRoot(cwd)) await walk(cwd, Math.min(options.maxScanDepth, 2), true, 'cwd-scan')
+
+    function liveFor(item) {
+      const base = basename(item.dir)
+      return [...found.values()].find((candidate) =>
+        (item.name && candidate.name === item.name) ||
+        (base && basename(candidate.dir) === base),
+      )
+    }
+
+    const residuals = []
+    const residualKeys = new Set()
+    const pushResidual = (item) => {
+      const key = item.dir
+      if (residualKeys.has(key)) return
+      residualKeys.add(key)
+      residuals.push(item)
+    }
+
+    for (const link of brokenLinks) {
+      const live = liveFor(link)
+      if (live) {
+        live.staleLinks.push(link)
+        warnings.push(`链接目录不存在，但同名组件仍在清单中：${link.dir}（实际目录：${live.dir}；profile 的 link 依赖已失效）`)
+      } else {
+        pushResidual(link)
+        warnings.push(`链接目录不存在：${link.dir}`)
+      }
+    }
+    for (const target of missingTargets) {
+      const live = liveFor(target)
+      if (live) {
+        live.staleTargets.push(target)
+        warnings.push(`手动目标目录已失效，但同名组件仍通过其他来源存在：${target.dir}`)
+      } else {
+        pushResidual(target)
+        warnings.push(`手动目标目录已失效：${target.dir}`)
+      }
+    }
 
     const dirs = [...found.values()].sort((left, right) => String(left.name || left.dir).localeCompare(String(right.name || right.dir)))
-    const value = { dirs, warnings: warnings.slice(0, 30), scanned, at: Date.now() }
+    const value = { dirs, residuals, warnings: warnings.slice(0, 30), scanned, at: Date.now() }
     discoveryCache = { at: Date.now(), value }
     return value
   }
@@ -1046,6 +1175,125 @@ export function apply(ctx, config = {}) {
     }
   }
 
+  function summarizeResidual(item) {
+    const name = item.name || basename(item.dir)
+    return {
+      id: item.dir,
+      dir: item.dir,
+      name,
+      title: name,
+      description: '',
+      version: '',
+      license: null,
+      private: false,
+      kind: 'missing',
+      origin: item.origin,
+      icon: null,
+      path: item.dir,
+      checks: { pass: 0, warn: 0, fail: 0, skip: 0, total: 0 },
+      patch: null,
+      clientPath: null,
+      latestRecord: null,
+      lastPublish: null,
+      recordCount: 0,
+      status: { state: 'missing', attention: true },
+      mtime: 0,
+      residual: true,
+      residualReason: item.reason || 'missing-directory',
+    }
+  }
+
+  async function getProvenance(rawDir) {
+    const discovery = await discover(false)
+    const wanted = expandHome(String(rawDir || ''))
+    let live = discovery.dirs.find((item) => item.dir === wanted)
+    if (!live) {
+      try {
+        const real = await realpath(wanted)
+        live = discovery.dirs.find((item) => item.dir === real)
+      } catch {
+        // A residual target is intentionally allowed to be missing.
+      }
+    }
+    const residual = live ? null : discovery.residuals.find((item) => item.dir === wanted)
+    const item = live || residual
+    if (!item) throw httpError(404, '没有找到该组件的来源记录。')
+    const sources = []
+    for (const source of (item.sources || (item.source ? [item.source] : []))) {
+      sources.push({
+        ...source,
+        packageExists: source.packageFile ? await exists(source.packageFile) : undefined,
+        profileExists: source.profileFile ? await exists(source.profileFile) : undefined,
+        stateExists: source.stateFile ? await exists(source.stateFile) : undefined,
+        targetExists: source.target ? await exists(expandHome(source.target)) : undefined,
+        rootExists: source.root ? await exists(source.root) : undefined,
+      })
+    }
+    const residuals = []
+    if (residual) {
+      residuals.push({
+        ...(residual.source || {}),
+        kind: 'missing',
+        dir: residual.dir,
+        reason: residual.reason || 'missing-directory',
+        target: residual.source && residual.source.target ? residual.source.target : residual.dir,
+      })
+    }
+    for (const stale of (item.staleLinks || [])) {
+      residuals.push({
+        ...(stale.source || {}),
+        kind: 'stale-profile-link',
+        dir: stale.dir,
+        target: stale.dir,
+      })
+    }
+    for (const stale of (item.staleTargets || [])) {
+      residuals.push({
+        ...(stale.source || {}),
+        kind: 'stale-manual-target',
+        dir: stale.dir,
+        target: stale.source && stale.source.target ? stale.source.target : stale.dir,
+      })
+    }
+    return {
+      dir: item.dir,
+      name: item.name || basename(item.dir),
+      title: item.name || basename(item.dir),
+      missing: !live,
+      origin: item.origin,
+      sources,
+      residuals,
+    }
+  }
+
+  async function revealSource(rawDir, rawPath) {
+    const provenance = await getProvenance(rawDir)
+    const requested = resolve(expandHome(String(rawPath || '')))
+    const allowed = new Set()
+    for (const source of provenance.sources) {
+      for (const key of ['packageFile', 'profileFile', 'stateFile', 'target', 'root']) {
+        if (typeof source[key] === 'string' && source[key] !== '') {
+          allowed.add(resolve(expandHome(source[key])))
+        }
+      }
+    }
+    if (!allowed.has(requested)) throw httpError(403, '只能定位该组件来源中的文件或目录。')
+    let info
+    try {
+      info = await stat(requested)
+    } catch {
+      throw httpError(404, '该文件或目录已经不存在。')
+    }
+    if (process.platform === 'darwin') {
+      await launchDetached('/usr/bin/open', info.isDirectory() ? [requested] : ['-R', requested])
+    } else if (process.platform === 'win32') {
+      await launchDetached('explorer.exe', info.isDirectory() ? [requested] : [`/select,${requested}`])
+    } else {
+      await launchDetached('xdg-open', [info.isDirectory() ? requested : dirname(requested)])
+    }
+    return { path: requested, directory: info.isDirectory() }
+  }
+
   async function buildOverview(force = false) {
     if (!force && overviewCache.value && Date.now() - overviewCache.at < 4000) return overviewCache.value
     await ensureState()
@@ -1058,6 +1306,7 @@ export function apply(ctx, config = {}) {
         discovery.warnings.push(`${item.dir}: ${String(error && error.message ? error.message : error)}`)
       }
     }
+    for (const item of discovery.residuals) components.push(summarizeResidual(item))
     components.sort((left, right) => String(left.title || left.name).localeCompare(String(right.title || right.name), 'zh-Hans-CN'))
     const npm = await resolveNpm()
     const value = {
@@ -1883,6 +2132,24 @@ export function apply(ctx, config = {}) {
     })
   }
 
+  async function removeTarget(rawDir) {
+    const target = expandHome(String(rawDir || ''))
+    if (target === '' || !isAbsolute(target)) throw httpError(400, '缺少要移除的目标目录。')
+    await ensureState()
+    return exclusive(async () => {
+      const before = state.targets.length
+      state.targets = state.targets.filter((value) => {
+        const normalized = expandHome(value)
+        return normalized !== target && resolve(normalized) !== resolve(target)
+      })
+      if (state.targets.length === before) throw httpError(404, '没有找到该手动目标记录。')
+      await persist()
+      discoveryCache = { at: 0, value: null }
+      overviewCache = { at: 0, value: null }
+      return { removed: true, dir: target }
+    })
+  }
+
   async function npmWhoami() {
     const npm = await resolveNpm()
     if (!npm.available) {
@@ -2019,6 +2286,9 @@ export function apply(ctx, config = {}) {
         if (pathname === `${API}/downloads`) {
           return sendJson(response, 200, { ok: true, ...(await getDownloads(url.searchParams.get('dir'))) })
         }
+        if (pathname === `${API}/provenance`) {
+          return sendJson(response, 200, { ok: true, ...(await getProvenance(url.searchParams.get('dir'))) })
+        }
         if (pathname === `${API}/whoami`) {
           return sendJson(response, 200, { ok: true, ...(await npmWhoami()) })
         }
@@ -2044,10 +2314,16 @@ export function apply(ctx, config = {}) {
         return sendJson(response, 200, { ok: true, settings })
       }
       if (pathname === `${API}/targets`) {
+        if (body && body.action === 'remove') {
+          return sendJson(response, 200, { ok: true, ...(await removeTarget(body.dir)) })
+        }
         if (!body || body.action !== 'add') {
-          return sendJson(response, 400, { ok: false, code: 'action', message: '只支持添加组件目录。' })
+          return sendJson(response, 400, { ok: false, code: 'action', message: '只支持添加或移除组件目录。' })
         }
         return sendJson(response, 200, { ok: true, ...(await addTarget(body.dir)) })
+      }
+      if (pathname === `${API}/reveal`) {
+        return sendJson(response, 200, { ok: true, ...(await revealSource(body && body.dir, body && body.path)) })
       }
       if (pathname === `${API}/publish`) {
         return sendJson(response, 200, { ok: true, ...(await publishComponent(body || {})) })

@@ -56,8 +56,48 @@ window.__ModuleLoader__.load({
         'card.records': '{n} 条记录',
         'card.never': '还没有发布过',
         'card.lastPublish': '最近发布 v{version} · {time}',
-        'card.open': '查看详情',
+        'card.open': '详情及发布',
         'card.attention': '上次失败',
+        'card.viewNpm': 'Npm查看',
+        'card.viewSource': '嗅探来源',
+        'card.residual': '残留',
+        'card.residualDesc': '组件目录已不存在，但来源记录仍在。',
+        'card.residualNotComponent': '目录仍在，但已不再包含 DSH 组件。',
+        'card.residualNoDetail': '目录已不存在，无法查看详情。',
+        'card.residualNoRecord': '目录已不存在',
+        'card.npmUnavailable': '没有可用的包名',
+        'status.missing': '残留',
+        'provenance.title': '插件读取方式',
+        'provenance.intro': '这个组件是通过以下来源进入清单的。',
+        'provenance.loading': '正在读取来源…',
+        'provenance.error': '读取来源失败',
+        'provenance.empty': '没有找到来源记录。',
+        'provenance.linkTitle': 'DSH profile 链接依赖',
+        'provenance.linkMethod': 'profile 的 package.json 中，{dep} 的依赖是 {spec}，指向这个目录。',
+        'provenance.targetTitle': '手动添加的目标目录',
+        'provenance.targetMethod': '通过「添加组件」加入，路径记录在 publish-state.json 的 targets 中。',
+        'provenance.scanTitle': '扫描根目录发现',
+        'provenance.scanMethod': '在 {root} 下扫描到第 {depth} 层，发现 package.json 声明了 dsh.bundle / dsh.client。',
+        'provenance.workspaceTitle': '工作区扫描发现',
+        'provenance.workspaceMethod': '在 DSH 工作区 {root} 下扫描到第 {depth} 层，发现 package.json 声明了 dsh.bundle / dsh.client。',
+        'provenance.cwdTitle': '当前目录扫描发现',
+        'provenance.cwdMethod': '在 Host 当前目录 {root} 下扫描到第 {depth} 层，发现 package.json 声明了 dsh.bundle / dsh.client。',
+        'provenance.triggerFile': '触发文件',
+        'provenance.profileFile': 'profile package.json',
+        'provenance.stateFile': '记录文件',
+        'provenance.targetFile': '目标目录',
+        'provenance.scanRoot': '扫描根目录',
+        'provenance.reveal': '定位',
+        'provenance.missingPath': '不存在',
+        'provenance.residualTitle': '残留说明',
+        'provenance.missingWhy': '组件目录已不存在，但来源记录仍在，所以卡片还留在清单里。',
+        'provenance.notComponentWhy': '目录仍然存在，但已不再包含 DSH 组件（缺少 package.json 或 dsh.bundle / dsh.client），所以它作为残留显示。',
+        'provenance.linkDeleteGuide': '为什么还在：profile 的 package.json 中仍有 {dep} = {spec} 的 link 依赖。删除方式：在 Harness 插件管理中卸载对应 bundle，或从该 profile 的 package.json 移除这条 link 依赖后重新安装。',
+        'provenance.targetDeleteGuide': '为什么还在：publish-state.json 的 targets 仍记录这个路径。删除方式：点下方「移除残留记录」，或从该 JSON 的 targets 数组删除这条路径。',
+        'provenance.staleLink': '这个 profile 的 link 依赖已经指向不存在的目录，但组件通过其他来源仍在清单中；建议清理这条 link 依赖。',
+        'provenance.staleTarget': '这个手动目标已经失效，但组件通过其他来源仍在清单中；建议移除这条目标记录。',
+        'provenance.removeTarget': '移除残留记录',
+        'provenance.removed': '已移除残留目标记录。',
         'status.published': '已发布',
         'status.pending': '待发布',
         'status.unpublished': '未发布',
@@ -422,8 +462,48 @@ window.__ModuleLoader__.load({
         'card.records': '{n} records',
         'card.never': 'Never published',
         'card.lastPublish': 'Last publish v{version} · {time}',
-        'card.open': 'Details',
+        'card.open': 'Details & Publish',
         'card.attention': 'Last attempt failed',
+        'card.viewNpm': 'npm',
+        'card.viewSource': 'Detect Source',
+        'card.residual': 'Residual',
+        'card.residualDesc': 'The component directory is gone, but its discovery record remains.',
+        'card.residualNotComponent': 'The directory exists but is no longer a DSH component.',
+        'card.residualNoDetail': 'The directory is gone; details are unavailable.',
+        'card.residualNoRecord': 'Directory missing',
+        'card.npmUnavailable': 'No package name available',
+        'status.missing': 'Residual',
+        'provenance.title': 'Discovery source',
+        'provenance.intro': 'This component entered the list through the following sources.',
+        'provenance.loading': 'Reading discovery sources…',
+        'provenance.error': 'Could not read discovery sources',
+        'provenance.empty': 'No discovery source was recorded.',
+        'provenance.linkTitle': 'DSH profile link dependency',
+        'provenance.linkMethod': 'The profile package.json declares {dep} as {spec}, pointing at this directory.',
+        'provenance.targetTitle': 'Manually added target',
+        'provenance.targetMethod': 'Added through “Add component”; the path is stored in the targets array of publish-state.json.',
+        'provenance.scanTitle': 'Found by scan root',
+        'provenance.scanMethod': 'Found package.json at depth {depth} under {root}, declaring dsh.bundle / dsh.client.',
+        'provenance.workspaceTitle': 'Found by workspace scan',
+        'provenance.workspaceMethod': 'Found package.json at depth {depth} under DSH workspace {root}, declaring dsh.bundle / dsh.client.',
+        'provenance.cwdTitle': 'Found by current-directory scan',
+        'provenance.cwdMethod': 'Found package.json at depth {depth} under the Host current directory {root}, declaring dsh.bundle / dsh.client.',
+        'provenance.triggerFile': 'Trigger file',
+        'provenance.profileFile': 'Profile package.json',
+        'provenance.stateFile': 'Record file',
+        'provenance.targetFile': 'Target directory',
+        'provenance.scanRoot': 'Scan root',
+        'provenance.reveal': 'Locate',
+        'provenance.missingPath': 'Missing',
+        'provenance.residualTitle': 'Residual explanation',
+        'provenance.missingWhy': 'The component directory is gone, but its discovery record remains, so the card is still in the list.',
+        'provenance.notComponentWhy': 'The directory exists but is no longer a DSH component (missing package.json or dsh.bundle / dsh.client), so it appears as a residual.',
+        'provenance.linkDeleteGuide': 'Why it remains: the profile package.json still has {dep} = {spec}. To delete it, uninstall the corresponding bundle in Harness plugin management, or remove this link dependency from the profile package.json and reinstall.',
+        'provenance.targetDeleteGuide': 'Why it remains: the targets array in publish-state.json still records this path. To delete it, use “Remove residual record” below, or remove this path from the targets array.',
+        'provenance.staleLink': 'This profile link dependency points at a missing directory, but the component is still listed via another source; consider cleaning up the link dependency.',
+        'provenance.staleTarget': 'This manual target is stale, but the component is still listed via another source; consider removing the target record.',
+        'provenance.removeTarget': 'Remove residual record',
+        'provenance.removed': 'Removed the residual target record.',
         'status.published': 'Published',
         'status.pending': 'Pending',
         'status.unpublished': 'Unpublished',
@@ -807,8 +887,9 @@ window.__ModuleLoader__.load({
 .np-toolbar__spacer{flex:1}
 .np-count{font-size:12px;color:var(--np-ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
 .np-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:16px}
-.np-card{position:relative;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--np-line);border-radius:12px;background:var(--np-sheet);color:var(--np-ink);text-align:left;font:inherit;cursor:pointer;box-shadow:var(--np-shadow);transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
-.np-card:hover{border-color:var(--np-line-strong);box-shadow:0 4px 12px rgba(16,24,40,.06);transform:translateY(-1px)}
+.np-card{position:relative;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--np-line);border-radius:12px;background:var(--np-sheet);color:var(--np-ink);text-align:left;font:inherit;cursor:default;box-shadow:var(--np-shadow);transition:border-color .16s ease,box-shadow .16s ease}
+.np-card:hover{border-color:var(--np-line-strong);box-shadow:0 4px 12px rgba(16,24,40,.06)}
+.np-card--residual{border-color:color-mix(in srgb,var(--np-bad) 28%,var(--np-line))}
 .np-card:active{transform:none}
 .np-card:focus-visible{outline:2px solid var(--np-accent);outline-offset:2px}
 .np-card__head{display:flex;align-items:flex-start;gap:11px}
@@ -826,6 +907,9 @@ window.__ModuleLoader__.load({
 .np-card__version-label{margin-right:4px;font-size:11px;font-weight:400;color:var(--np-ink-soft)}
 .np-card__last{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .np-card__open{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:500;color:var(--np-accent)}
+.np-card__actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:10px;border-top:1px solid var(--np-line)}
+.np-card__action{flex:1 1 0;min-width:0;padding:0 8px;font-size:11.5px;white-space:nowrap;justify-content:center}
+.np-card__action:hover:not(:disabled){background:color-mix(in srgb,var(--np-accent) 12%,var(--np-sheet));border-color:var(--np-accent);color:var(--np-accent)}
 .np-chip{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border:1px solid var(--np-line);border-radius:6px;background:transparent;font-size:11px;font-weight:500;line-height:1;color:var(--np-ink-soft);white-space:nowrap}
 .np-chip--ok{color:var(--np-ok);border-color:color-mix(in srgb,var(--np-ok) 35%,var(--np-line));background:color-mix(in srgb,var(--np-ok) 7%,transparent)}
 .np-npm-user{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid color-mix(in srgb,var(--np-ok) 35%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-ok) 8%,var(--np-sheet));color:var(--np-ok);font-size:13px;font-weight:600;line-height:1;white-space:nowrap}
@@ -837,6 +921,7 @@ window.__ModuleLoader__.load({
 .np-status--published{color:var(--np-ok);border-color:color-mix(in srgb,var(--np-ok) 30%,var(--np-line));background:color-mix(in srgb,var(--np-ok) 7%,transparent)}
 .np-status--pending{color:var(--np-warn);border-color:color-mix(in srgb,var(--np-warn) 30%,var(--np-line));background:color-mix(in srgb,var(--np-warn) 7%,transparent)}
 .np-status--unpublished{color:var(--np-ink-soft)}
+.np-status--missing{color:var(--np-bad);border-color:color-mix(in srgb,var(--np-bad) 30%,var(--np-line));background:color-mix(in srgb,var(--np-bad) 7%,transparent)}
 .np-status__dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .np-statusline{display:inline-flex;align-items:center;gap:6px;min-width:0}
 .np-status-arrow{flex:none;color:var(--np-ink-soft);font-size:11.5px;font-weight:500;line-height:1}
@@ -1008,6 +1093,29 @@ window.__ModuleLoader__.load({
 .np-dialog--error .np-info__head h2{margin:0;flex:1;min-width:0}
 .np-error__message{max-height:320px;overflow:auto;padding:10px 12px;border:1px solid color-mix(in srgb,var(--np-bad) 30%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-bad) 5%,transparent);color:var(--np-ink);font-size:12.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;user-select:text}
 .np-dialog--error .np-error__detail{margin:8px 0 0;font-size:11.5px;line-height:1.55;color:var(--np-ink-soft);word-break:break-word}
+.np-dialog.np-dialog--source{width:min(640px,100%)}
+.np-dialog--source .np-info__head h2{margin:0;flex:1;min-width:0}
+.np-source__subject{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
+.np-source__name{font-size:13px;font-weight:600;color:var(--np-ink);word-break:break-all}
+.np-source__dir{margin:0 0 12px;font-size:11px;line-height:1.5;color:var(--np-ink-soft);word-break:break-all}
+.np-source__list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.np-source__card{padding:12px;border:1px solid var(--np-line);border-radius:10px;background:var(--np-sheet2)}
+.np-source__card-head{display:flex;align-items:flex-start;gap:8px}
+.np-source__num{flex:none;display:grid;place-items:center;width:20px;height:20px;border:1px solid var(--np-line);border-radius:6px;background:var(--np-sheet);font-size:10px;font-weight:600;color:var(--np-ink-soft)}
+.np-source__title{margin:0;font-size:13px;font-weight:600;line-height:1.4;color:var(--np-ink)}
+.np-source__method{margin:6px 0 8px;font-size:12px;line-height:1.6;color:var(--np-ink-soft);word-break:break-word}
+.np-source__chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.np-source__files{display:flex;flex-direction:column;gap:6px}
+.np-source__file{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--np-line);border-radius:7px;background:var(--np-sheet)}
+.np-source__file-label{font-size:11px;color:var(--np-ink-soft);white-space:nowrap}
+.np-source__path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;color:var(--np-ink);word-break:break-all}
+.np-source__locate{flex:none}
+.np-source__missing{font-size:11px;color:var(--np-bad);white-space:nowrap}
+.np-source__residuals{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.np-source__residual{padding:10px 12px;border:1px solid color-mix(in srgb,var(--np-bad) 30%,var(--np-line));border-radius:9px;background:color-mix(in srgb,var(--np-bad) 5%,transparent)}
+.np-source__residual h3{margin:0 0 4px;font-size:12px;font-weight:600;color:var(--np-bad)}
+.np-source__residual p{margin:2px 0;font-size:11.5px;line-height:1.6;color:var(--np-ink-soft);word-break:break-word}
+.np-source__residual .np-btn{margin-top:6px}
 .np-dialog--info .np-info__head h2{margin:0;flex:1;min-width:0}
 .np-dialog--info .np-info__intro{margin:8px 0 4px}
 .np-modal--records{display:block;padding:20px}
@@ -1019,7 +1127,7 @@ window.__ModuleLoader__.load({
 .np-success__head h2{margin:0;flex:1;min-width:0}
 .np-success__icon{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--np-ok) 14%,transparent);color:var(--np-ok)}
 .np-success__detail{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:var(--np-ink);font-weight:600;word-break:break-all;user-select:text}
-.np-dialog--settings{width:min(880px,100%);max-height:min(760px,calc(100vh - 40px));display:flex;flex-direction:column;overflow:hidden}
+.np-dialog--settings{width:min(880px,100%);height:min(80vh,calc(100vh - 40px));display:flex;flex-direction:column;overflow:hidden}
 .np-settings__body{flex:1;display:flex;min-height:0}
 .np-settings__side{flex:none;width:200px;border-right:1px solid var(--np-line);padding:16px 10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
 .np-settings__group{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--np-ink-soft);font-size:13px;font-weight:500;text-align:left;cursor:pointer}
@@ -1028,7 +1136,8 @@ window.__ModuleLoader__.load({
 .np-settings__main{flex:1;min-width:0;padding:20px 24px;overflow-y:auto}
 .np-settings__subtitle{margin:0;flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--np-ink)}
 .np-settings__hint{margin:0 0 14px;font-size:12px;line-height:1.6;color:var(--np-ink-soft)}
-.np-settings__warn{display:flex;align-items:flex-start;gap:8px;margin:14px 0 16px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--np-bad) 40%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-bad) 8%,transparent);font-size:12px;line-height:1.6;color:var(--np-bad);font-weight:500}
+.np-settings__warn{display:flex;align-items:flex-start;gap:8px;margin:16px 0 18px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--np-bad) 40%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-bad) 8%,transparent);font-size:12px;line-height:1.6;color:var(--np-bad);font-weight:500}
+.np-dialog .np-settings__warn{margin:16px 0 18px;font-size:12px;line-height:1.6;color:var(--np-bad)}
 .np-settings__warn .np-ico{flex:none;margin-top:1px;color:var(--np-bad)}
 .np-settings__empty{padding:28px 0;text-align:center;color:var(--np-ink-soft);font-size:13px}
 .np-tokenlist{display:flex;flex-direction:column;gap:8px}
@@ -1682,6 +1791,182 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function ProvenanceDialog(props) {
+      const [t, tr] = useText()
+      const info = props.info
+      const status = props.status || 'loading'
+      const component = props.component || {}
+      const sources = info && Array.isArray(info.sources) ? info.sources : []
+      const residuals = info && Array.isArray(info.residuals) ? info.residuals : []
+      const missing = Boolean(info && info.missing)
+
+      React.useEffect(() => {
+        const onKeyDown = (event) => {
+          if (event.key === 'Escape') props.onClose()
+        }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+      }, [props.onClose])
+
+      function sourceTitle(source) {
+        if (source.kind === 'profile-link') return t('provenance.linkTitle')
+        if (source.kind === 'manual-target') return t('provenance.targetTitle')
+        if (source.kind === 'workspace-scan') return t('provenance.workspaceTitle')
+        if (source.kind === 'cwd-scan') return t('provenance.cwdTitle')
+        return t('provenance.scanTitle')
+      }
+
+      function sourceMethod(source) {
+        if (source.kind === 'profile-link') {
+          return tr('provenance.linkMethod', {
+            dep: source.dependencyName || '—',
+            spec: source.spec || '—',
+          })
+        }
+        if (source.kind === 'manual-target') return t('provenance.targetMethod')
+        const key = source.kind === 'workspace-scan'
+          ? 'provenance.workspaceMethod'
+          : source.kind === 'cwd-scan'
+            ? 'provenance.cwdMethod'
+            : 'provenance.scanMethod'
+        return tr(key, {
+          root: source.root || '—',
+          depth: source.depth === undefined || source.depth === null ? '—' : String(source.depth),
+        })
+      }
+
+      function rowsFor(source) {
+        const rows = []
+        if (source.packageFile) {
+          rows.push({ key: 'package', label: t('provenance.triggerFile'), path: source.packageFile, exists: source.packageExists !== false })
+        }
+        if (source.profileFile) {
+          rows.push({ key: 'profile', label: t('provenance.profileFile'), path: source.profileFile, exists: source.profileExists !== false })
+        }
+        if (source.stateFile) {
+          rows.push({ key: 'state', label: t('provenance.stateFile'), path: source.stateFile, exists: source.stateExists !== false })
+        }
+        if (source.target) {
+          rows.push({ key: 'target', label: t('provenance.targetFile'), path: source.target, exists: source.targetExists !== false })
+        }
+        if (source.root) {
+          rows.push({ key: 'root', label: t('provenance.scanRoot'), path: source.root, exists: source.rootExists !== false })
+        }
+        return rows
+      }
+
+      function residualBlock(residual, index) {
+        const stale = residual.kind === 'stale-profile-link' || residual.kind === 'stale-manual-target'
+        const isTarget = residual.kind === 'stale-manual-target' || (!stale && residual.stateFile && !residual.profileFile)
+        const why = missing && !stale
+          ? (info.reason === 'not-component' ? t('provenance.notComponentWhy') : t('provenance.missingWhy'))
+          : stale
+            ? (residual.kind === 'stale-profile-link' ? t('provenance.staleLink') : t('provenance.staleTarget'))
+            : t('provenance.missingWhy')
+        const guide = isTarget
+          ? tr('provenance.targetDeleteGuide', { state: residual.stateFile || '—' })
+          : tr('provenance.linkDeleteGuide', {
+            profile: residual.profileFile || '—',
+            dep: residual.dependencyName || '—',
+            spec: residual.spec || '—',
+          })
+        const target = residual.target || residual.dir
+        return h('div', { key: `${residual.kind || 'missing'}-${index}`, className: 'np-source__residual' },
+          h('h3', null, t('provenance.residualTitle')),
+          h('p', null, why),
+          h('p', null, guide),
+          isTarget && target
+            ? h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--danger np-btn--small',
+              onClick: () => props.onRemoveTarget(target),
+            }, t('provenance.removeTarget'))
+            : null,
+        )
+      }
+
+      const blocks = residuals.length > 0 ? residuals : (missing ? [{ kind: 'missing', reason: info.reason }] : [])
+
+      return h('div', {
+        className: 'np-modal',
+        role: 'presentation',
+        onMouseDown: (event) => {
+          if (event.target === event.currentTarget) props.onClose()
+        },
+      },
+        h('div', { className: 'np-dialog np-dialog--source', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-source-title' },
+          h('div', { className: 'np-info__head' },
+            h('h2', { id: 'np-source-title' }, t('provenance.title')),
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--ghost np-btn--small',
+              'aria-label': t('action.close'),
+              onClick: props.onClose,
+            }, h(Glyph, { name: 'close', size: 13 })),
+          ),
+          h('p', { className: 'np-info__intro' }, t('provenance.intro')),
+
+          status === 'loading'
+            ? h('p', { className: 'np-hint' }, t('provenance.loading'))
+            : status === 'error'
+              ? h('div', { className: 'np-error__message' }, props.error || t('provenance.error'))
+              : info
+                ? h(React.Fragment, null,
+                  h('div', { className: 'np-source__subject' },
+                    h('span', { className: 'np-source__name np-mono' }, info.name || component.name || '—'),
+                    missing ? h('span', { className: 'np-chip np-chip--fail' }, t('card.residual')) : null,
+                  ),
+                  h('p', { className: 'np-source__dir np-mono' }, info.dir || component.dir || '—'),
+
+                  sources.length > 0
+                    ? h('div', { className: 'np-source__list' },
+                      sources.map((source, index) => h('section', { key: index, className: 'np-source__card' },
+                        h('div', { className: 'np-source__card-head' },
+                          h('span', { className: 'np-source__num', 'aria-hidden': 'true' }, String(index + 1)),
+                          h('h3', { className: 'np-source__title' }, sourceTitle(source)),
+                        ),
+                        h('p', { className: 'np-source__method' }, sourceMethod(source)),
+                        (source.bundle || source.client)
+                          ? h('div', { className: 'np-source__chips' },
+                            source.bundle ? h('span', { className: 'np-chip np-chip--accent' }, 'dsh.bundle') : null,
+                            source.client ? h('span', { className: 'np-chip np-chip--accent' }, 'dsh.client') : null,
+                          )
+                          : null,
+                        h('div', { className: 'np-source__files' },
+                          rowsFor(source).map((row) => h('div', { key: row.key, className: 'np-source__file' },
+                            h('span', { className: 'np-source__file-label' }, row.label),
+                            h('code', { className: 'np-source__path' }, row.path),
+                            row.exists
+                              ? h('button', {
+                                type: 'button',
+                                className: 'np-btn np-btn--ghost np-btn--small np-source__locate',
+                                onClick: () => props.onReveal(row.path),
+                              }, t('provenance.reveal'))
+                              : h('span', { className: 'np-source__missing' }, t('provenance.missingPath')),
+                          )),
+                        ),
+                      )),
+                    )
+                    : h('p', { className: 'np-hint' }, t('provenance.empty')),
+
+                  blocks.length > 0
+                    ? h('div', { className: 'np-source__residuals' }, blocks.map(residualBlock))
+                    : null,
+                )
+                : null,
+
+          h('div', { className: 'np-dialog__actions' },
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--primary',
+              autoFocus: true,
+              onClick: props.onClose,
+            }, t('action.close')),
+          ),
+        ),
+      )
+    }
+
     function Toast(props) {
       if (!props.toast) return null
       return h('div', { className: `np-toast np-toast--${props.toast.kind}`, role: 'status', 'aria-live': 'polite' },
@@ -1941,12 +2226,11 @@ window.__ModuleLoader__.load({
       const component = props.component
       const checks = component.checks || { pass: 0, warn: 0, fail: 0 }
       const tone = checks.fail > 0 ? 'fail' : checks.warn > 0 ? 'warn' : 'ok'
-      return h('button', {
-        type: 'button',
-        className: 'np-card',
-        onClick: () => props.onOpen(component.dir),
-        'aria-label': `${component.title || component.name} — ${t('card.open')}`,
-      },
+      const residual = component.residual === true
+      const npmUrl = component.name && (!residual || component.origin === 'link')
+        ? `https://www.npmjs.com/package/${component.name}`
+        : ''
+      return h('article', { className: `np-card${residual ? ' np-card--residual' : ''}` },
         h('div', { className: 'np-card__head' },
           h('span', { className: 'np-card__icon' },
             component.icon && component.icon.dataUrl
@@ -1958,32 +2242,73 @@ window.__ModuleLoader__.load({
             h('span', { className: 'np-card__name np-mono' }, component.name),
           ),
         ),
-        h('p', { className: 'np-card__desc' }, component.description || t('common.noDescription')),
+        h('p', { className: 'np-card__desc' },
+          residual
+            ? (component.residualReason === 'not-component' ? t('card.residualNotComponent') : t('card.residualDesc'))
+            : (component.description || t('common.noDescription')),
+        ),
         h('div', { className: 'np-card__tags' },
-          h('span', { className: 'np-chip' }, t(`badge.${component.kind}`)),
-          component.patch ? h('span', { className: 'np-chip' }, t('badge.bundlePatch')) : null,
-          h('span', {
-            className: `np-chip np-chip--${tone}`,
-            title: tr('checks.summary', { pass: checks.pass, warn: checks.warn, fail: checks.fail }),
-          }, `${checks.pass} / ${checks.warn} / ${checks.fail}`),
-          component.status && component.status.attention ? h('span', { className: 'np-chip np-chip--fail' }, t('card.attention')) : null,
-          component.recordCount > 0 ? h('span', { className: 'np-chip' }, tr('card.records', { n: component.recordCount })) : null,
+          residual
+            ? h('span', { className: 'np-chip np-chip--fail' }, t('card.residual'))
+            : h(React.Fragment, null,
+              h('span', { className: 'np-chip' }, t(`badge.${component.kind}`)),
+              component.patch ? h('span', { className: 'np-chip' }, t('badge.bundlePatch')) : null,
+              h('span', {
+                className: `np-chip np-chip--${tone}`,
+                title: tr('checks.summary', { pass: checks.pass, warn: checks.warn, fail: checks.fail }),
+              }, `${checks.pass} / ${checks.warn} / ${checks.fail}`),
+              component.status && component.status.attention ? h('span', { className: 'np-chip np-chip--fail' }, t('card.attention')) : null,
+              component.recordCount > 0 ? h('span', { className: 'np-chip' }, tr('card.records', { n: component.recordCount })) : null,
+            ),
         ),
         h('div', { className: 'np-card__bottom' },
           h('div', { className: 'np-card__statusline' },
-            h(StatusTag, { status: component.status, devVersion: component.version }),
+            residual
+              ? h('span', { className: 'np-status np-status--missing' },
+                h('span', { className: 'np-status__dot', 'aria-hidden': 'true' }),
+                t('status.missing'),
+              )
+              : h(StatusTag, { status: component.status, devVersion: component.version }),
           ),
           h('div', { className: 'np-card__foot' },
             h('span', { className: 'np-card__version' },
               h('span', { className: 'np-card__version-label' }, t('card.version')),
-              `v${component.version || '0.0.0'}`,
+              residual ? '—' : `v${component.version || '0.0.0'}`,
             ),
             h('span', { className: 'np-card__last' },
-              component.lastPublish
-                ? tr('card.lastPublish', { version: component.lastPublish.version, time: formatShortDate(component.lastPublish.at) })
-                : t('card.never'),
+              residual
+                ? t('card.residualNoRecord')
+                : component.lastPublish
+                  ? tr('card.lastPublish', { version: component.lastPublish.version, time: formatShortDate(component.lastPublish.at) })
+                  : t('card.never'),
             ),
-            h('span', { className: 'np-card__open' }, t('card.open'), h(Glyph, { name: 'arrow', size: 13 })),
+          ),
+          h('div', { className: 'np-card__actions' },
+            npmUrl
+              ? h('a', {
+                className: 'np-btn np-btn--small np-card__action',
+                href: npmUrl,
+                target: '_blank',
+                rel: 'noreferrer noopener',
+              }, t('card.viewNpm'))
+              : h('button', {
+                type: 'button',
+                className: 'np-btn np-btn--small np-card__action',
+                disabled: true,
+                title: t('card.npmUnavailable'),
+              }, t('card.viewNpm')),
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--small np-card__action',
+              onClick: () => props.onSource(component),
+            }, t('card.viewSource')),
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--small np-card__action',
+              disabled: residual,
+              title: residual ? t('card.residualNoDetail') : undefined,
+              onClick: () => props.onOpen(component.dir),
+            }, h(Glyph, { name: 'upload', size: 13 }), t('card.open')),
           ),
         ),
       )
@@ -1996,6 +2321,10 @@ window.__ModuleLoader__.load({
       const [settingsOpen, setSettingsOpen] = React.useState(false)
       const [npmUser, setNpmUser] = React.useState(null)
       const [npmUserBusy, setNpmUserBusy] = React.useState('loading')
+      const [sourceComponent, setSourceComponent] = React.useState(null)
+      const [sourceInfo, setSourceInfo] = React.useState(null)
+      const [sourceStatus, setSourceStatus] = React.useState('idle')
+      const [sourceError, setSourceError] = React.useState('')
       const loginPollRef = React.useRef(null)
 
       const checkWhoami = React.useCallback(async () => {
@@ -2014,6 +2343,25 @@ window.__ModuleLoader__.load({
           if (loginPollRef.current) clearInterval(loginPollRef.current)
         }
       }, [checkWhoami])
+
+      React.useEffect(() => {
+        if (!sourceComponent) return undefined
+        const controller = new AbortController()
+        setSourceStatus('loading')
+        setSourceInfo(null)
+        setSourceError('')
+        apiGet(`/provenance?dir=${encodeURIComponent(sourceComponent.dir)}`, controller.signal)
+          .then((data) => {
+            setSourceInfo(data)
+            setSourceStatus('ready')
+          })
+          .catch((failure) => {
+            if (failure && failure.name === 'AbortError') return
+            setSourceError(failure && failure.message ? failure.message : tr('provenance.error'))
+            setSourceStatus('error')
+          })
+        return () => controller.abort()
+      }, [sourceComponent])
 
       async function startLogin() {
         setNpmUserBusy('login')
@@ -2044,6 +2392,37 @@ window.__ModuleLoader__.load({
           }, 2500)
         } catch (failure) {
           setNpmUserBusy('')
+          props.showToast('error', failure && failure.message ? failure.message : tr('common.error'))
+        }
+      }
+
+      const closeSource = React.useCallback(() => {
+        setSourceComponent(null)
+        setSourceInfo(null)
+        setSourceError('')
+        setSourceStatus('idle')
+      }, [])
+
+      function openSource(component) {
+        setSourceComponent(component)
+      }
+
+      async function revealSource(path) {
+        if (!sourceComponent) return
+        try {
+          await apiPost('/reveal', { dir: sourceComponent.dir, path })
+        } catch (failure) {
+          props.showToast('error', failure && failure.message ? failure.message : tr('common.error'))
+        }
+      }
+
+      async function removeSourceTarget(target) {
+        try {
+          await apiPost('/targets', { action: 'remove', dir: target })
+          props.showToast('ok', tr('provenance.removed'))
+          closeSource()
+          props.onRefresh()
+        } catch (failure) {
           props.showToast('error', failure && failure.message ? failure.message : tr('common.error'))
         }
       }
@@ -2176,6 +2555,7 @@ window.__ModuleLoader__.load({
                     key: component.dir,
                     component,
                     onOpen: props.onOpen,
+                    onSource: openSource,
                   })),
                 ),
             ),
@@ -2190,6 +2570,17 @@ window.__ModuleLoader__.load({
             : null,
         ),
         h(SettingsModal, { open: settingsOpen, onClose: () => setSettingsOpen(false) }),
+        sourceComponent
+          ? h(ProvenanceDialog, {
+            component: sourceComponent,
+            info: sourceInfo,
+            status: sourceStatus,
+            error: sourceError,
+            onClose: closeSource,
+            onReveal: revealSource,
+            onRemoveTarget: removeSourceTarget,
+          })
+          : null,
         h(Toast, { toast: props.toast }),
       )
     }
