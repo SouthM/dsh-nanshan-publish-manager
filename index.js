@@ -775,6 +775,13 @@ export function apply(ctx, config = {}) {
       ...(patchPath ? [patchPath] : []),
       ...(iconInfo && iconInfo.path ? [iconInfo.path] : []),
     ])
+    let createdAt = 0
+    try {
+      const dirInfo = await stat(dir)
+      createdAt = dirInfo.birthtimeMs || dirInfo.mtimeMs || 0
+    } catch {
+      createdAt = 0
+    }
     const name = typeof pkg.name === 'string' ? pkg.name : basename(dir)
     const title =
       (locale.zh && locale.zh.title) ||
@@ -806,6 +813,7 @@ export function apply(ctx, config = {}) {
       localeDir,
       readmeExists,
       mtime,
+      createdAt,
       checks,
     }
   }
@@ -1172,6 +1180,7 @@ export function apply(ctx, config = {}) {
       recordCount: records.length,
       status: publishStatus(pkg, currentRecords),
       mtime: info.mtime,
+      createdAt: info.createdAt,
     }
   }
 
@@ -1198,6 +1207,7 @@ export function apply(ctx, config = {}) {
       recordCount: 0,
       status: { state: 'missing', attention: true },
       mtime: 0,
+      createdAt: 0,
       residual: true,
       residualReason: item.reason || 'missing-directory',
     }
@@ -1307,7 +1317,7 @@ export function apply(ctx, config = {}) {
       }
     }
     for (const item of discovery.residuals) components.push(summarizeResidual(item))
-    components.sort((left, right) => String(left.title || left.name).localeCompare(String(right.title || right.name), 'zh-Hans-CN'))
+    components.sort((left, right) => (Number(left.createdAt) || 0) - (Number(right.createdAt) || 0))
     const npm = await resolveNpm()
     const value = {
       components,
@@ -2291,6 +2301,12 @@ export function apply(ctx, config = {}) {
         }
         if (pathname === `${API}/whoami`) {
           return sendJson(response, 200, { ok: true, ...(await npmWhoami()) })
+        }
+        if (pathname === `${API}/records`) {
+          const { dir } = await requireComponentDir(url.searchParams.get('dir'))
+          await ensureState()
+          const records = Array.isArray(state.records[dir]) ? state.records[dir] : []
+          return sendJson(response, 200, { ok: true, records })
         }
         if (pathname === `${API}/tokens`) {
           return sendJson(response, 200, { ok: true, tokens: await listTokens() })

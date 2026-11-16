@@ -1,0 +1,7 @@
+# v1.0.29
+
+## 改进
+- 卡片「发布状态行」改为 flex 布局并采用 space-between 分布：
+  - 状态行容器 `justify-content:space-between`
+  - StatusTag 新增 `spread` 模式（`np-statusline--spread`），占满宽度、左右两端对齐
+  - 左侧已发布版本靠左、右侧待发布版本靠右，箭头居中

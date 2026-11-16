@@ -53,6 +53,10 @@ window.__ModuleLoader__.load({
         'list.warnings': '扫描提示（{n}）',
         'list.scanned': '已检查 {n} 个目录',
         'card.version': '版本',
+        'card.devVersion': '开发版本',
+        'card.latestRelease': '最新发布',
+        'card.publishTime': '发布时间',
+        'card.description': '插件描述',
         'card.records': '{n} 条记录',
         'card.never': '还没有发布过',
         'card.lastPublish': '最近发布 v{version} · {time}',
@@ -61,6 +65,12 @@ window.__ModuleLoader__.load({
         'card.viewNpm': 'Npm查看',
         'card.viewSource': '嗅探来源',
         'card.residual': '残留',
+        'tag.bundle': '该组件是 DSH 服务端形态：通过 cordis.patch.yml（dsh.bundle）声明，随 npm 包被 DSH 加载并注入补丁。',
+        'tag.client': '该组件是 DSH 前端界面形态：通过 dsh.client 入口在网页中渲染界面。',
+        'tag.host': '该组件是 DSH 宿主形态：负责承载其他组件与插件。',
+        'tag.patch': '该组件声明了 dsh.bundle.patch，即 cordis.patch.yml 中的一行，会作为补丁注入 DSH 配置。',
+        'tag.attention': '该组件最近一次发布尝试失败，需要关注失败原因并处理后重新发布。',
+        'tag.residual': '该组件目录已不存在或已不再是 DSH 组件，仅保留了来源记录，建议清理。',
         'card.residualDesc': '组件目录已不存在，但来源记录仍在。',
         'card.residualNotComponent': '目录仍在，但已不再包含 DSH 组件。',
         'card.residualNoDetail': '目录已不存在，无法查看详情。',
@@ -459,6 +469,10 @@ window.__ModuleLoader__.load({
         'list.warnings': 'Scan notes ({n})',
         'list.scanned': 'Checked {n} directories',
         'card.version': 'Version',
+        'card.devVersion': 'Dev version',
+        'card.latestRelease': 'Latest release',
+        'card.publishTime': 'Published at',
+        'card.description': 'Description',
         'card.records': '{n} records',
         'card.never': 'Never published',
         'card.lastPublish': 'Last publish v{version} · {time}',
@@ -467,6 +481,12 @@ window.__ModuleLoader__.load({
         'card.viewNpm': 'npm',
         'card.viewSource': 'Detect Source',
         'card.residual': 'Residual',
+        'tag.bundle': 'A DSH server-side component, declared via cordis.patch.yml (dsh.bundle) and loaded as an npm package.',
+        'tag.client': 'A DSH web UI component, rendered through the dsh.client entry.',
+        'tag.host': 'A DSH host component that carries other components and plugins.',
+        'tag.patch': 'Declares dsh.bundle.patch (a cordis.patch.yml row) injected into the DSH configuration.',
+        'tag.attention': 'The most recent publish attempt failed; review the cause and retry.',
+        'tag.residual': 'The component directory is missing or no longer a DSH component; only the source record remains.',
         'card.residualDesc': 'The component directory is gone, but its discovery record remains.',
         'card.residualNotComponent': 'The directory exists but is no longer a DSH component.',
         'card.residualNoDetail': 'The directory is gone; details are unavailable.',
@@ -898,16 +918,19 @@ window.__ModuleLoader__.load({
 .np-card__titles{flex:1;min-width:0}
 .np-card__title{display:block;font-size:14px;font-weight:600;line-height:1.4;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .np-card__name{display:block;margin-top:2px;color:var(--np-ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.np-card__desc{margin:0;height:38px;font-size:12.5px;line-height:1.55;color:var(--np-ink-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.np-card__statusline{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:22px}
+.np-card__foot{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--np-ink-soft);min-width:0}
+.np-card__field{display:flex;align-items:baseline;gap:8px;min-width:0}
+.np-card__field-label{flex:none;font-size:11px;font-weight:500;color:var(--np-ink-soft);white-space:nowrap}
+.np-card__field-value{flex:1;min-width:0;font-size:12px;font-weight:600;color:var(--np-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.np-card__field--desc{align-items:flex-start}
+.np-card__field--desc .np-card__field-label{padding-top:2px}
+.np-card__field--desc .np-card__field-value{font-weight:400;color:var(--np-ink-soft);white-space:normal;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.np-card__recordlink{flex:none;padding:0;margin:0;border:0;background:none;font-size:12px;font-weight:600;color:var(--np-accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer;white-space:nowrap}
+.np-card__recordlink:hover{opacity:0.78}
 .np-card__tags{display:flex;flex-wrap:wrap;gap:6px}
-.np-card__bottom{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid var(--np-line)}
-.np-card__statusline{display:flex;align-items:center;gap:6px;min-height:22px}
-.np-card__foot{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:12px;color:var(--np-ink-soft);min-width:0}
-.np-card__version{flex:none;font-size:12.5px;font-weight:600;color:var(--np-ink);font-variant-numeric:tabular-nums}
-.np-card__version-label{margin-right:4px;font-size:11px;font-weight:400;color:var(--np-ink-soft)}
-.np-card__last{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .np-card__open{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:500;color:var(--np-accent)}
-.np-card__actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:10px;border-top:1px solid var(--np-line)}
+.np-card__actions{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--np-line);border-bottom:1px solid var(--np-line)}
 .np-card__action{flex:1 1 0;min-width:0;padding:0 8px;font-size:11.5px;white-space:nowrap;justify-content:center}
 .np-card__action:hover:not(:disabled){background:color-mix(in srgb,var(--np-accent) 12%,var(--np-sheet));border-color:var(--np-accent);color:var(--np-accent)}
 .np-chip{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border:1px solid var(--np-line);border-radius:6px;background:transparent;font-size:11px;font-weight:500;line-height:1;color:var(--np-ink-soft);white-space:nowrap}
@@ -917,6 +940,9 @@ window.__ModuleLoader__.load({
 .np-chip--warn{color:var(--np-warn);border-color:color-mix(in srgb,var(--np-warn) 35%,var(--np-line));background:color-mix(in srgb,var(--np-warn) 7%,transparent)}
 .np-chip--fail{color:var(--np-bad);border-color:color-mix(in srgb,var(--np-bad) 35%,var(--np-line));background:color-mix(in srgb,var(--np-bad) 7%,transparent)}
 .np-chip--accent{color:var(--np-accent);border-color:color-mix(in srgb,var(--np-accent) 35%,var(--np-line));background:color-mix(in srgb,var(--np-accent) 7%,transparent)}
+.np-chip--clickable{font-family:inherit;cursor:pointer}
+.np-chip--clickable:hover{border-color:color-mix(in srgb,var(--np-accent) 55%,var(--np-line))}
+.np-chip--clickable:focus-visible{outline:2px solid color-mix(in srgb,var(--np-accent) 55%,transparent);outline-offset:1px}
 .np-status{display:inline-flex;align-items:center;gap:5px;flex:none;height:22px;padding:0 8px;border:1px solid var(--np-line);border-radius:999px;background:transparent;color:var(--np-ink-soft);font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap}
 .np-status--published{color:var(--np-ok);border-color:color-mix(in srgb,var(--np-ok) 30%,var(--np-line));background:color-mix(in srgb,var(--np-ok) 7%,transparent)}
 .np-status--pending{color:var(--np-warn);border-color:color-mix(in srgb,var(--np-warn) 30%,var(--np-line));background:color-mix(in srgb,var(--np-warn) 7%,transparent)}
@@ -924,7 +950,9 @@ window.__ModuleLoader__.load({
 .np-status--missing{color:var(--np-bad);border-color:color-mix(in srgb,var(--np-bad) 30%,var(--np-line));background:color-mix(in srgb,var(--np-bad) 7%,transparent)}
 .np-status__dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .np-statusline{display:inline-flex;align-items:center;gap:6px;min-width:0}
-.np-status-arrow{flex:none;color:var(--np-ink-soft);font-size:11.5px;font-weight:500;line-height:1}
+.np-statusline--spread{display:flex;justify-content:space-between;width:100%;flex:1;min-width:0}
+.np-status-arrow{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:color-mix(in srgb,var(--np-accent) 10%,transparent);color:var(--np-accent);font-size:11.5px;font-weight:500;line-height:1}
+.np-statuslink{flex:1;min-width:8px;height:0;border-top:2px dotted color-mix(in srgb,var(--np-ink-soft) 30%,transparent);align-self:center}
 .np-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 20px;margin-top:16px;border:1px dashed var(--np-line-strong);border-radius:12px;text-align:center;color:var(--np-ink-soft);background:transparent}
 .np-empty h3{margin:0;font-size:14px;font-weight:600;color:var(--np-ink)}
 .np-empty p{margin:0;max-width:440px;font-size:12.5px;line-height:1.65}
@@ -1083,6 +1111,8 @@ window.__ModuleLoader__.load({
 .np-dialog{position:relative;width:min(480px,100%);max-height:calc(100vh - 48px);overflow-y:auto;padding:20px;background:var(--np-sheet);border:1px solid var(--np-line);border-radius:14px;box-shadow:0 24px 48px rgba(15,23,42,.18)}
 .np-dialog h2{margin:0 0 8px;font-size:16px;font-weight:600;line-height:1.35;letter-spacing:-.01em}
 .np-dialog p{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:var(--np-ink-soft)}
+.np-dialog--taginfo{width:min(400px,100%)}
+.np-taginfo__desc{margin:0;font-size:13px;line-height:1.7;color:var(--np-ink-soft)}
 .np-dialog .np-field{margin:2px 0 10px}
 .np-dialog__warn{padding:8px 10px;border:1px solid color-mix(in srgb,var(--np-bad) 30%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-bad) 6%,transparent);color:var(--np-bad)!important}
 .np-dialog__actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
@@ -1264,6 +1294,18 @@ window.__ModuleLoader__.load({
         return date.toLocaleTimeString(useChinese() ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       } catch {
         return date.toISOString().slice(11, 19)
+      }
+    }
+
+    function formatDateTimeFull(value) {
+      const date = new Date(value)
+      if (Number.isNaN(date.getTime())) return '—'
+      try {
+        return date.toLocaleString(useChinese() ? 'zh-CN' : 'en-US', {
+          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+        })
+      } catch {
+        return date.toISOString().slice(0, 19).replace('T', ' ')
       }
     }
 
@@ -1653,9 +1695,11 @@ window.__ModuleLoader__.load({
         h('span', { className: 'np-status__dot', 'aria-hidden': 'true' }),
         devPending ? `${t('status.pending')} v${devVersion}` : `v${devVersion}`,
       )
-      return h('span', { className: 'np-statusline' },
+      return h('span', { className: `np-statusline${props.spread ? ' np-statusline--spread' : ''}` },
         liveTag,
-        devPending ? h('span', { className: 'np-status-arrow', 'aria-hidden': 'true' }, '->') : null,
+        props.spread && devPending ? h('span', { className: 'np-statuslink', 'aria-hidden': 'true' }) : null,
+        devPending ? h('span', { className: 'np-status-arrow', 'aria-hidden': 'true' }, h(Glyph, { name: 'arrow', size: 12 })) : null,
+        props.spread && devPending ? h('span', { className: 'np-statuslink', 'aria-hidden': 'true' }) : null,
         devPending ? devTag : null,
       )
     }
@@ -2056,6 +2100,70 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function RecordsDialog(props) {
+      const [t] = useText()
+      React.useEffect(() => {
+        if (!props.open) return
+        const onKeyDown = (event) => {
+          if (event.key === 'Escape') props.onClose()
+        }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+      }, [props.open, props.onClose])
+      if (!props.open) return null
+      const records = Array.isArray(props.records) ? props.records : []
+      return h('div', {
+        className: 'np-modal np-modal--records',
+        role: 'presentation',
+        onMouseDown: (event) => {
+          if (event.target === event.currentTarget) props.onClose()
+        },
+      },
+        h('div', { className: 'np-dialog np-dialog--records', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-records-title' },
+          h('div', { className: 'np-info__head' },
+            h('h2', { id: 'np-records-title' },
+              t('detail.records'),
+              ' ',
+              h('span', { className: 'np-count' }, String(records.length)),
+            ),
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--ghost np-btn--small',
+              'aria-label': t('action.close'),
+              onClick: props.onClose,
+            }, h(Glyph, { name: 'close', size: 13 })),
+          ),
+          h('div', { className: 'np-records' },
+            records.length === 0
+              ? h('div', { className: 'np-empty np-empty--small' },
+                h('p', null, t('detail.noRecords')),
+              )
+              : records.map((record) => h(RecordItem, { key: record.id, record, packageName: props.packageName })),
+          ),
+        ),
+      )
+    }
+
+    function TagInfoDialog(props) {
+      const [t] = useText()
+      React.useEffect(() => {
+        if (!props.open) return
+        const onKeyDown = (event) => { if (event.key === 'Escape') props.onClose() }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+      }, [props.open, props.onClose])
+      if (!props.open) return null
+      return h('div', { className: 'np-modal', role: 'presentation', onMouseDown: (event) => { if (event.target === event.currentTarget) props.onClose() } },
+        h('div', { className: 'np-dialog np-dialog--taginfo', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-taginfo-title' },
+          h('div', { className: 'np-info__head' },
+            h('h2', { id: 'np-taginfo-title' }, props.title),
+            h('button', { type: 'button', className: 'np-iconbtn', onClick: props.onClose, 'aria-label': t('action.close') }, h(Glyph, { name: 'close', size: 14 })),
+          ),
+          h('p', { className: 'np-taginfo__desc' }, props.description),
+        ),
+      )
+    }
+
     function SettingsModal(props) {
       const [t, tr] = useText()
       const [group, setGroup] = React.useState('tokens')
@@ -2224,12 +2332,37 @@ window.__ModuleLoader__.load({
     function ComponentCard(props) {
       const [t, tr] = useText()
       const component = props.component
-      const checks = component.checks || { pass: 0, warn: 0, fail: 0 }
-      const tone = checks.fail > 0 ? 'fail' : checks.warn > 0 ? 'warn' : 'ok'
       const residual = component.residual === true
       const npmUrl = component.name && (!residual || component.origin === 'link')
         ? `https://www.npmjs.com/package/${component.name}`
         : ''
+      const [recordsOpen, setRecordsOpen] = React.useState(false)
+      const [records, setRecords] = React.useState([])
+      const [recordsLoading, setRecordsLoading] = React.useState(false)
+      const [tagInfo, setTagInfo] = React.useState(null)
+
+      async function openRecords() {
+        if (recordsLoading) return
+        setRecordsOpen(true)
+        setRecordsLoading(true)
+        try {
+          const data = await apiGet(`/records?dir=${encodeURIComponent(component.dir)}`)
+          setRecords(Array.isArray(data.records) ? data.records : [])
+        } catch {
+          setRecords([])
+        } finally {
+          setRecordsLoading(false)
+        }
+      }
+
+      const tags = residual
+        ? [{ key: 'residual', label: t('card.residual'), title: t('card.residual'), desc: t('tag.residual'), className: 'np-chip np-chip--fail' }]
+        : [
+          { key: 'kind', label: t(`badge.${component.kind}`), title: t(`badge.${component.kind}`), desc: t(`tag.${component.kind}`), className: 'np-chip' },
+          ...(component.patch ? [{ key: 'patch', label: t('badge.bundlePatch'), title: t('badge.bundlePatch'), desc: t('tag.patch'), className: 'np-chip' }] : []),
+          ...(component.status && component.status.attention ? [{ key: 'attention', label: t('card.attention'), title: t('card.attention'), desc: t('tag.attention'), className: 'np-chip np-chip--fail' }] : []),
+        ]
+
       return h('article', { className: `np-card${residual ? ' np-card--residual' : ''}` },
         h('div', { className: 'np-card__head' },
           h('span', { className: 'np-card__icon' },
@@ -2242,75 +2375,99 @@ window.__ModuleLoader__.load({
             h('span', { className: 'np-card__name np-mono' }, component.name),
           ),
         ),
-        h('p', { className: 'np-card__desc' },
-          residual
-            ? (component.residualReason === 'not-component' ? t('card.residualNotComponent') : t('card.residualDesc'))
-            : (component.description || t('common.noDescription')),
+        h('div', { className: 'np-card__actions' },
+          npmUrl
+            ? h('a', {
+              className: 'np-btn np-btn--small np-card__action',
+              href: npmUrl,
+              target: '_blank',
+              rel: 'noreferrer noopener',
+            }, h(Glyph, { name: 'external', size: 13 }), t('card.viewNpm'))
+            : h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--small np-card__action',
+              disabled: true,
+              title: t('card.npmUnavailable'),
+            }, h(Glyph, { name: 'external', size: 13 }), t('card.viewNpm')),
+          h('button', {
+            type: 'button',
+            className: 'np-btn np-btn--small np-card__action',
+            onClick: () => props.onSource(component),
+          }, h(Glyph, { name: 'search', size: 13 }), t('card.viewSource')),
+          h('button', {
+            type: 'button',
+            className: 'np-btn np-btn--small np-card__action',
+            disabled: residual,
+            title: residual ? t('card.residualNoDetail') : undefined,
+            onClick: () => props.onOpen(component.dir),
+          }, h(Glyph, { name: 'upload', size: 13 }), t('card.open')),
         ),
-        h('div', { className: 'np-card__tags' },
+        h('div', { className: 'np-card__statusline' },
           residual
-            ? h('span', { className: 'np-chip np-chip--fail' }, t('card.residual'))
-            : h(React.Fragment, null,
-              h('span', { className: 'np-chip' }, t(`badge.${component.kind}`)),
-              component.patch ? h('span', { className: 'np-chip' }, t('badge.bundlePatch')) : null,
-              h('span', {
-                className: `np-chip np-chip--${tone}`,
-                title: tr('checks.summary', { pass: checks.pass, warn: checks.warn, fail: checks.fail }),
-              }, `${checks.pass} / ${checks.warn} / ${checks.fail}`),
-              component.status && component.status.attention ? h('span', { className: 'np-chip np-chip--fail' }, t('card.attention')) : null,
-              component.recordCount > 0 ? h('span', { className: 'np-chip' }, tr('card.records', { n: component.recordCount })) : null,
-            ),
+            ? h('span', { className: 'np-status np-status--missing' },
+              h('span', { className: 'np-status__dot', 'aria-hidden': 'true' }),
+              t('status.missing'),
+            )
+            : h(StatusTag, { status: component.status, devVersion: component.version, spread: true }),
         ),
-        h('div', { className: 'np-card__bottom' },
-          h('div', { className: 'np-card__statusline' },
-            residual
-              ? h('span', { className: 'np-status np-status--missing' },
-                h('span', { className: 'np-status__dot', 'aria-hidden': 'true' }),
-                t('status.missing'),
-              )
-              : h(StatusTag, { status: component.status, devVersion: component.version }),
+        h('div', { className: 'np-card__foot' },
+          h('div', { className: 'np-card__field' },
+            h('span', { className: 'np-card__field-label' }, t('card.devVersion')),
+            h('span', { className: 'np-card__field-value' }, residual ? '—' : `v${component.version || '0.0.0'}`),
           ),
-          h('div', { className: 'np-card__foot' },
-            h('span', { className: 'np-card__version' },
-              h('span', { className: 'np-card__version-label' }, t('card.version')),
-              residual ? '—' : `v${component.version || '0.0.0'}`,
-            ),
-            h('span', { className: 'np-card__last' },
+          h('div', { className: 'np-card__field' },
+            h('span', { className: 'np-card__field-label' }, t('card.latestRelease')),
+            h('span', { className: 'np-card__field-value' },
               residual
-                ? t('card.residualNoRecord')
+                ? '—'
                 : component.lastPublish
-                  ? tr('card.lastPublish', { version: component.lastPublish.version, time: formatShortDate(component.lastPublish.at) })
+                  ? `v${component.lastPublish.version}`
                   : t('card.never'),
             ),
           ),
-          h('div', { className: 'np-card__actions' },
-            npmUrl
-              ? h('a', {
-                className: 'np-btn np-btn--small np-card__action',
-                href: npmUrl,
-                target: '_blank',
-                rel: 'noreferrer noopener',
-              }, t('card.viewNpm'))
-              : h('button', {
+          h('div', { className: 'np-card__field' },
+            h('span', { className: 'np-card__field-label' }, t('card.publishTime')),
+            h('span', { className: 'np-card__field-value' },
+              residual || !component.lastPublish ? '—' : formatDateTimeFull(component.lastPublish.at),
+            ),
+            !residual && component.recordCount > 0
+              ? h('button', {
                 type: 'button',
-                className: 'np-btn np-btn--small np-card__action',
-                disabled: true,
-                title: t('card.npmUnavailable'),
-              }, t('card.viewNpm')),
-            h('button', {
-              type: 'button',
-              className: 'np-btn np-btn--small np-card__action',
-              onClick: () => props.onSource(component),
-            }, t('card.viewSource')),
-            h('button', {
-              type: 'button',
-              className: 'np-btn np-btn--small np-card__action',
-              disabled: residual,
-              title: residual ? t('card.residualNoDetail') : undefined,
-              onClick: () => props.onOpen(component.dir),
-            }, h(Glyph, { name: 'upload', size: 13 }), t('card.open')),
+                className: 'np-card__recordlink',
+                onClick: openRecords,
+              }, tr('card.records', { n: component.recordCount }))
+              : null,
+          ),
+          h('div', { className: 'np-card__field np-card__field--desc' },
+            h('span', { className: 'np-card__field-label' }, t('card.description')),
+            h('span', { className: 'np-card__field-value' },
+              residual
+                ? (component.residualReason === 'not-component' ? t('card.residualNotComponent') : t('card.residualDesc'))
+                : (component.description || t('common.noDescription')),
+            ),
           ),
         ),
+        h('div', { className: 'np-card__tags' },
+          tags.map((tag) => h('button', {
+            key: tag.key,
+            type: 'button',
+            className: `${tag.className} np-chip--clickable`,
+            title: tag.title,
+            onClick: () => setTagInfo({ title: tag.title, description: tag.desc }),
+          }, tag.label)),
+        ),
+        h(RecordsDialog, {
+          open: recordsOpen,
+          onClose: () => setRecordsOpen(false),
+          records,
+          packageName: component.name,
+        }),
+        h(TagInfoDialog, {
+          open: tagInfo !== null,
+          onClose: () => setTagInfo(null),
+          title: tagInfo ? tagInfo.title : '',
+          description: tagInfo ? tagInfo.description : '',
+        }),
       )
     }
 
@@ -3640,32 +3797,12 @@ window.__ModuleLoader__.load({
           : null,
 
         recordsModalOpen
-          ? h('div', {
-            className: 'np-modal np-modal--records',
-            role: 'presentation',
-            onMouseDown: (event) => {
-              if (event.target === event.currentTarget) setRecordsModalOpen(false)
-            },
-          },
-            h('div', { className: 'np-dialog np-dialog--records', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-records-title' },
-              h('div', { className: 'np-info__head' },
-                h('h2', { id: 'np-records-title' },
-                  t('detail.records'),
-                  ' ',
-                  h('span', { className: 'np-count' }, String(records.length)),
-                ),
-                h('button', {
-                  type: 'button',
-                  className: 'np-btn np-btn--ghost np-btn--small',
-                  'aria-label': t('action.close'),
-                  onClick: () => setRecordsModalOpen(false),
-                }, h(Glyph, { name: 'close', size: 13 })),
-              ),
-              h('div', { className: 'np-records' },
-                records.map((record) => h(RecordItem, { key: record.id, record, packageName })),
-              ),
-            ),
-          )
+          ? h(RecordsDialog, {
+            open: recordsModalOpen,
+            onClose: () => setRecordsModalOpen(false),
+            records,
+            packageName,
+          })
           : null,
 
         successDialog
