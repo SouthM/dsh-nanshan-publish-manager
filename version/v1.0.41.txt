@@ -1,0 +1,5 @@
+# v1.0.41
+
+## 新增
+- 头部副标题区域最右侧显示当前插件版本号，并查询 npm registry 最新版本，提示是否有新版本（有新版本橙色徽标、已是最新绿色徽标）。
+- 后端新增 `/plugin-version` 接口（读取 package.json 版本 + 查询 registry dist-tags.latest，缓存 5 分钟）。

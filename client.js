@@ -15,6 +15,10 @@ window.__ModuleLoader__.load({
         'nav.title': '【南山】DSH发布Npm助手',
         'page.title': '【南山】DSH发布Npm助手',
         'page.subtitle': '把本机 DSH 组件按官方 npm 形式发布：配置、预检查、发布与记录。',
+        'pluginVersion.label': '当前版本',
+        'pluginVersion.updateAvailable': '有新版本 v{latest}',
+        'pluginVersion.upToDate': '已是最新',
+        'pluginVersion.checking': '检查中…',
         'page.footnote': '官方发布形式：npm 包 + cordis.patch.yml（dsh.bundle）+ dsh.client。发布后，其他人可以在 DSH 插件页安装这个包名，组件就能直接使用。',
         'page.npmMissing': '没有找到 npm：请先安装 Node.js / npm，再刷新本页。',
         'action.refresh': '刷新',
@@ -431,6 +435,10 @@ window.__ModuleLoader__.load({
         'nav.title': 'Nanshan DSH npm publish assistant',
         'page.title': 'Nanshan DSH npm publish assistant',
         'page.subtitle': 'Publish local DSH components the official npm way: configure, pre-check, publish, and record.',
+        'pluginVersion.label': 'Version',
+        'pluginVersion.updateAvailable': 'Update available v{latest}',
+        'pluginVersion.upToDate': 'Up to date',
+        'pluginVersion.checking': 'Checking…',
         'page.footnote': 'Official bundle form: an npm package with cordis.patch.yml (dsh.bundle) and dsh.client. Once published, anyone can install the package from the DSH plugin page.',
         'page.npmMissing': 'npm was not found. Install Node.js / npm, then refresh this page.',
         'action.refresh': 'Refresh',
@@ -866,14 +874,19 @@ window.__ModuleLoader__.load({
 }
 .np *{box-sizing:border-box}
 .np__inner{position:relative;max-width:1120px;margin:0 auto;padding:calc(var(--dsh-frame-top-clearance,0px) + 28px) 32px 64px}
-.np__header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.np__heading{display:flex;align-items:center;gap:12px;min-width:0}
+.np__header{position:sticky;top:0;z-index:20;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:calc((var(--dsh-frame-top-clearance,0px) + 28px) * -1);padding-top:calc(var(--dsh-frame-top-clearance,0px) + 12px);padding-bottom:12px;margin-bottom:16px;background:var(--np-paper);border-bottom:1px solid var(--np-line)}
+.np__heading{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 320px}
 .np__mark{flex:none;width:42px;height:42px;display:grid;place-items:center;background:transparent;border:0;box-shadow:none}
 .np__mark svg{display:block;width:100%;height:100%}
 .np-glass-mark{filter:drop-shadow(0 6px 14px rgba(0,0,0,.24))}
-.np__titles{min-width:0}
+.np__titles{min-width:0;flex:1}
 .np__title{margin:0;font-size:23px;font-weight:600;line-height:1.25;letter-spacing:-.02em}
 .np__subtitle{margin:4px 0 0;max-width:680px;font-size:13px;line-height:1.6;color:var(--np-ink-soft)}
+.np__header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+.np__plugin-version{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:1.6;color:var(--np-ink-soft);white-space:nowrap}
+.np__plugin-version__cur{color:var(--np-ink-soft)}
+.np__plugin-version__update{color:var(--np-warn);font-weight:600}
+.np__plugin-version__ok{color:var(--np-ink-soft)}
 .np__actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .np-btn{appearance:none;display:inline-flex;text-decoration:none;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--np-line-strong);border-radius:8px;background:var(--np-sheet);color:var(--np-ink);font:inherit;font-size:13px;font-weight:500;line-height:1;cursor:pointer;box-shadow:var(--np-shadow);transition:background-color .14s ease,border-color .14s ease,color .14s ease,opacity .14s ease;white-space:nowrap}
 .np-btn:hover:not(:disabled){background:var(--np-sheet2);border-color:var(--np-line-strong)}
@@ -2482,7 +2495,16 @@ window.__ModuleLoader__.load({
       const [sourceInfo, setSourceInfo] = React.useState(null)
       const [sourceStatus, setSourceStatus] = React.useState('idle')
       const [sourceError, setSourceError] = React.useState('')
+      const [pluginVersion, setPluginVersion] = React.useState(null)
       const loginPollRef = React.useRef(null)
+
+      React.useEffect(() => {
+        let cancelled = false
+        apiGet('/plugin-version')
+          .then((data) => { if (!cancelled) setPluginVersion(data) })
+          .catch(() => { if (!cancelled) setPluginVersion(null) })
+        return () => { cancelled = true }
+      }, [])
 
       const checkWhoami = React.useCallback(async () => {
         const data = await apiGet('/whoami')
@@ -2612,39 +2634,53 @@ window.__ModuleLoader__.load({
               h('p', { className: 'np__subtitle' }, t('page.subtitle')),
             ),
           ),
-          h('div', { className: 'np__actions' },
-            npmUser
-              ? h('span', { className: 'np-npm-user', title: tr('synopsis.npmUser', { name: npmUser }) },
-                h(Glyph, { name: 'check', size: 14 }),
-                h('span', { className: 'np-npm-user__label' }, t('npmUser.label')),
-                h('span', null, npmUser),
-              )
-              : h('button', {
+          h('div', { className: 'np__header-right' },
+            h('div', { className: 'np__actions' },
+              npmUser
+                ? h('span', { className: 'np-npm-user', title: tr('synopsis.npmUser', { name: npmUser }) },
+                  h(Glyph, { name: 'check', size: 14 }),
+                  h('span', { className: 'np-npm-user__label' }, t('npmUser.label')),
+                  h('span', null, npmUser),
+                )
+                : h('button', {
+                  type: 'button',
+                  className: 'np-btn',
+                  disabled: npmUserBusy !== '',
+                  onClick: startLogin,
+                }, npmUserBusy !== ''
+                  ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' })
+                  : h(Glyph, { name: 'lock', size: 14 }),
+                  npmUserBusy === 'login' ? t('npmLogin.opening') : t('npmLogin.button')),
+              h('button', {
                 type: 'button',
                 className: 'np-btn',
-                disabled: npmUserBusy !== '',
-                onClick: startLogin,
-              }, npmUserBusy !== ''
-                ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' })
-                : h(Glyph, { name: 'lock', size: 14 }),
-                npmUserBusy === 'login' ? t('npmLogin.opening') : t('npmLogin.button')),
-            h('button', {
-              type: 'button',
-              className: 'np-btn',
-              disabled: props.adding === true,
-              onClick: props.onAdd,
-            }, props.adding ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' }) : h(Glyph, { name: 'plus', size: 14 }), props.adding ? t('action.adding') : t('action.add')),
-            h('button', {
-              type: 'button',
-              className: 'np-btn np-btn--primary',
-              disabled: props.status === 'refreshing' || loading,
-              onClick: props.onRefresh,
-            }, h(Glyph, { name: 'refresh', size: 14, className: props.status === 'refreshing' ? 'np-spin' : undefined }), props.status === 'refreshing' ? t('action.refreshing') : t('action.refresh')),
-            h('button', {
-              type: 'button',
-              className: 'np-btn',
-              onClick: () => setSettingsOpen(true),
-            }, h(Glyph, { name: 'gear', size: 14 }), t('settings.button')),
+                disabled: props.adding === true,
+                onClick: props.onAdd,
+              }, props.adding ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' }) : h(Glyph, { name: 'plus', size: 14 }), props.adding ? t('action.adding') : t('action.add')),
+              h('button', {
+                type: 'button',
+                className: 'np-btn np-btn--primary',
+                disabled: props.status === 'refreshing' || loading,
+                onClick: props.onRefresh,
+              }, h(Glyph, { name: 'refresh', size: 14, className: props.status === 'refreshing' ? 'np-spin' : undefined }), props.status === 'refreshing' ? t('action.refreshing') : t('action.refresh')),
+              h('button', {
+                type: 'button',
+                className: 'np-btn',
+                onClick: () => setSettingsOpen(true),
+              }, h(Glyph, { name: 'gear', size: 14 }), t('settings.button')),
+            ),
+            pluginVersion
+              ? h('span', { className: 'np__plugin-version' },
+                h('span', { className: 'np__plugin-version__cur' }, `${t('pluginVersion.label')} v${pluginVersion.version}`),
+                pluginVersion.checked
+                  ? (pluginVersion.hasUpdate
+                    ? h('span', { className: 'np__plugin-version__update' }, tr('pluginVersion.updateAvailable', { latest: pluginVersion.latest }))
+                    : h('span', { className: 'np__plugin-version__ok' }, t('pluginVersion.upToDate')))
+                  : null,
+              )
+              : h('span', { className: 'np__plugin-version' },
+                h('span', { className: 'np__plugin-version__cur' }, t('pluginVersion.checking')),
+              ),
           ),
         ),
 
