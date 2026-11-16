@@ -1,0 +1,9 @@
+# v1.0.48
+
+## 文档
+- README 新增「界面截图」章节，引用组件清单、组件详情与发布、空状态三张截图（相对路径 `./docs/images/*.png`，随仓库上传后 GitHub 可直接显示）。
+- 新增 `docs/images/` 目录存放三张截图：`component-list.png`、`component-detail.png`、`component-list-empty.png`。
+
+## 发布配置
+- package.json 新增 `repository` 字段（`https://github.com/wangnanshan/dsh-nanshan-publish-manager.git`），供 npm 网站把 README 中相对路径图片解析为 GitHub raw URL，从而在 npm 上也能正常显示截图。
+- package.json 的 `files` 增加 `docs`，确保截图随 npm 包一并打包。
