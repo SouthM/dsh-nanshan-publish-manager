@@ -50,6 +50,7 @@ window.__ModuleLoader__.load({
         'list.filter.unpublished': '未发布',
         'list.filter.attention': '需关注',
         'list.count': '共 {n} 个组件',
+        'list.loading': '正在加载组件清单…',
         'list.emptyTitle': '还没有发现组件',
         'list.emptyHint': '把组件放在当前工作区，或点「添加组件」选择组件目录。组件需要带有 dsh.bundle 或 dsh.client。',
         'list.errorTitle': '清单没有加载出来',
@@ -470,6 +471,7 @@ window.__ModuleLoader__.load({
         'list.filter.unpublished': 'Unpublished',
         'list.filter.attention': 'Needs attention',
         'list.count': '{n} components',
+        'list.loading': 'Loading components…',
         'list.emptyTitle': 'No components found yet',
         'list.emptyHint': 'Keep components in this workspace, or use “Add component” to choose a directory. A component needs dsh.bundle or dsh.client.',
         'list.errorTitle': 'The list did not load',
@@ -874,7 +876,7 @@ window.__ModuleLoader__.load({
 }
 .np *{box-sizing:border-box}
 .np__inner{position:relative;max-width:1120px;margin:0 auto;padding:calc(var(--dsh-frame-top-clearance,0px) + 28px) 32px 64px}
-.np__header{position:sticky;top:0;z-index:20;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:calc((var(--dsh-frame-top-clearance,0px) + 28px) * -1);padding-top:calc(var(--dsh-frame-top-clearance,0px) + 12px);padding-bottom:12px;margin-bottom:16px;background:var(--np-paper);border-bottom:1px solid var(--np-line)}
+.np__header{position:sticky;top:0;z-index:20;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:12px 0;margin-bottom:16px;background:var(--np-paper);border-bottom:1px solid var(--np-line)}
 .np__heading{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 320px}
 .np__mark{flex:none;width:42px;height:42px;display:grid;place-items:center;background:transparent;border:0;box-shadow:none}
 .np__mark svg{display:block;width:100%;height:100%}
@@ -970,7 +972,8 @@ window.__ModuleLoader__.load({
 .np-empty h3{margin:0;font-size:14px;font-weight:600;color:var(--np-ink)}
 .np-empty p{margin:0;max-width:440px;font-size:12.5px;line-height:1.65}
 .np-empty--small{padding:22px 14px;margin-top:8px;gap:6px}
-.np-skeleton{height:168px;border:1px solid var(--np-line);border-radius:12px;background:linear-gradient(100deg,transparent 18%,var(--np-sheet2) 42%,transparent 66%);background-size:220% 100%;animation:np-shimmer 1.7s linear infinite}
+.np-skeleton{height:168px;border:1px solid var(--np-line);border-radius:12px;background-color:var(--np-sheet2);background-image:linear-gradient(100deg,transparent 18%,color-mix(in srgb,var(--np-line) 85%,transparent) 42%,transparent 66%);background-size:220% 100%;animation:np-shimmer 1.7s linear infinite}
+.np-loading-hint{display:flex;align-items:center;gap:8px;margin:4px 0 12px;font-size:12.5px;color:var(--np-ink-soft)}
 .np-skeleton--wide{height:120px}
 @keyframes np-shimmer{to{background-position:-220% 0}}
 .np-warnbar{margin-top:12px;border:1px solid color-mix(in srgb,var(--np-warn) 35%,var(--np-line));border-radius:8px;background:color-mix(in srgb,var(--np-warn) 7%,transparent);padding:8px 11px;font-size:12px;line-height:1.6;color:var(--np-ink)}
@@ -2696,10 +2699,13 @@ window.__ModuleLoader__.load({
           : null,
 
         loading
-          ? h('div', { className: 'np-grid' },
-            h('div', { className: 'np-skeleton' }),
-            h('div', { className: 'np-skeleton' }),
-            h('div', { className: 'np-skeleton' }),
+          ? h(React.Fragment, null,
+            h('div', { className: 'np-loading-hint' }, h(Glyph, { name: 'refresh', size: 14, className: 'np-spin' }), t('list.loading')),
+            h('div', { className: 'np-grid' },
+              h('div', { className: 'np-skeleton' }),
+              h('div', { className: 'np-skeleton' }),
+              h('div', { className: 'np-skeleton' }),
+            ),
           )
           : props.error
             ? h(EmptyState, {

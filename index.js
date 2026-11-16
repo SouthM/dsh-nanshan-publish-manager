@@ -2279,9 +2279,12 @@ export function apply(ctx, config = {}) {
     }
     let latest = version
     let checked = false
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 8000)
     try {
       const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, {
         headers: { accept: 'application/json' },
+        signal: controller.signal,
       })
       if (response.ok) {
         const meta = await response.json().catch(() => null)
@@ -2293,6 +2296,8 @@ export function apply(ctx, config = {}) {
       }
     } catch {
       checked = false
+    } finally {
+      clearTimeout(timer)
     }
     const hasUpdate = checked && compareVersions(version, latest) < 0
     const value = { name, version, latest, hasUpdate, checked }
