@@ -16,9 +16,6 @@ window.__ModuleLoader__.load({
         'page.title': '【南山】DSH发布Npm助手',
         'page.subtitle': '把本机 DSH 组件按官方 npm 形式发布：配置、预检查、发布与记录。',
         'pluginVersion.label': '当前版本',
-        'pluginVersion.updateAvailable': '有新版本 v{latest}',
-        'pluginVersion.upToDate': '已是最新',
-        'pluginVersion.checking': '检查中…',
         'page.footnote': '官方发布形式：npm 包 + cordis.patch.yml（dsh.bundle）+ dsh.client。发布后，其他人可以在 DSH 插件页安装这个包名，组件就能直接使用。',
         'page.npmMissing': '没有找到 npm：请先安装 Node.js / npm，再刷新本页。',
         'action.refresh': '刷新',
@@ -437,9 +434,6 @@ window.__ModuleLoader__.load({
         'page.title': 'Nanshan DSH npm publish assistant',
         'page.subtitle': 'Publish local DSH components the official npm way: configure, pre-check, publish, and record.',
         'pluginVersion.label': 'Version',
-        'pluginVersion.updateAvailable': 'Update available v{latest}',
-        'pluginVersion.upToDate': 'Up to date',
-        'pluginVersion.checking': 'Checking…',
         'page.footnote': 'Official bundle form: an npm package with cordis.patch.yml (dsh.bundle) and dsh.client. Once published, anyone can install the package from the DSH plugin page.',
         'page.npmMissing': 'npm was not found. Install Node.js / npm, then refresh this page.',
         'action.refresh': 'Refresh',
@@ -887,8 +881,6 @@ window.__ModuleLoader__.load({
 .np__header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
 .np__plugin-version{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:1.6;color:var(--np-ink-soft);white-space:nowrap}
 .np__plugin-version__cur{color:var(--np-ink-soft)}
-.np__plugin-version__update{color:var(--np-warn);font-weight:600}
-.np__plugin-version__ok{color:var(--np-ink-soft)}
 .np__actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .np-btn{appearance:none;display:inline-flex;text-decoration:none;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--np-line-strong);border-radius:8px;background:var(--np-sheet);color:var(--np-ink);font:inherit;font-size:13px;font-weight:500;line-height:1;cursor:pointer;box-shadow:var(--np-shadow);transition:background-color .14s ease,border-color .14s ease,color .14s ease,opacity .14s ease;white-space:nowrap}
 .np-btn:hover:not(:disabled){background:var(--np-sheet2);border-color:var(--np-line-strong)}
@@ -2672,18 +2664,11 @@ window.__ModuleLoader__.load({
                 onClick: () => setSettingsOpen(true),
               }, h(Glyph, { name: 'gear', size: 14 }), t('settings.button')),
             ),
-            pluginVersion
+            pluginVersion && pluginVersion.version
               ? h('span', { className: 'np__plugin-version' },
                 h('span', { className: 'np__plugin-version__cur' }, `${t('pluginVersion.label')} v${pluginVersion.version}`),
-                pluginVersion.checked
-                  ? (pluginVersion.hasUpdate
-                    ? h('span', { className: 'np__plugin-version__update' }, tr('pluginVersion.updateAvailable', { latest: pluginVersion.latest }))
-                    : h('span', { className: 'np__plugin-version__ok' }, t('pluginVersion.upToDate')))
-                  : null,
               )
-              : h('span', { className: 'np__plugin-version' },
-                h('span', { className: 'np__plugin-version__cur' }, t('pluginVersion.checking')),
-              ),
+              : null,
           ),
         ),
 

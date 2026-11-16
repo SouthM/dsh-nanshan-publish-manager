@@ -2268,39 +2268,14 @@ export function apply(ctx, config = {}) {
 
   async function pluginVersionInfo() {
     if (pluginVersionCache.value && Date.now() - pluginVersionCache.at < 5 * 60_000) return pluginVersionCache.value
-    let name = '@wangnanshan/dsh-nanshan-publish-manager'
     let version = '0.0.0'
     try {
       const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
-      if (typeof pkg.name === 'string' && pkg.name) name = pkg.name
       if (typeof pkg.version === 'string' && pkg.version) version = pkg.version
     } catch {
-      // Fall back to defaults; the registry lookup below still works with a guessed name.
+      // Fall back to the placeholder version.
     }
-    let latest = version
-    let checked = false
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 8000)
-    try {
-      const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, {
-        headers: { accept: 'application/json' },
-        signal: controller.signal,
-      })
-      if (response.ok) {
-        const meta = await response.json().catch(() => null)
-        const tag = meta && meta['dist-tags'] && meta['dist-tags'].latest
-        if (typeof tag === 'string' && tag) {
-          latest = tag
-          checked = true
-        }
-      }
-    } catch {
-      checked = false
-    } finally {
-      clearTimeout(timer)
-    }
-    const hasUpdate = checked && compareVersions(version, latest) < 0
-    const value = { name, version, latest, hasUpdate, checked }
+    const value = { version }
     pluginVersionCache = { at: Date.now(), value }
     return value
   }
