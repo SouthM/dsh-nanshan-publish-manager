@@ -920,6 +920,8 @@ window.__ModuleLoader__.load({
 .np-card:active{transform:none}
 .np-card:focus-visible{outline:2px solid var(--np-accent);outline-offset:2px}
 .np-card__head{display:flex;align-items:flex-start;gap:11px}
+.np-card__head--clickable{cursor:pointer;border-radius:10px}
+.np-card__head--clickable:focus-visible{outline:2px solid var(--np-accent);outline-offset:2px}
 .np-card__icon{flex:none;width:38px;height:38px;display:grid;place-items:center;border:0;background:transparent;overflow:visible}
 .np-card__icon img{width:100%;height:100%;object-fit:contain;border-radius:9px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.16))}
 .np-card__titles{flex:1;min-width:0}
@@ -2372,7 +2374,17 @@ window.__ModuleLoader__.load({
         ]
 
       return h('article', { className: `np-card${residual ? ' np-card--residual' : ''}` },
-        h('div', { className: 'np-card__head' },
+        h('div', {
+          className: `np-card__head${residual ? '' : ' np-card__head--clickable'}`,
+          role: residual ? undefined : 'button',
+          tabIndex: residual ? undefined : 0,
+          title: residual ? t('card.residualNoDetail') : t('card.open'),
+          'aria-label': residual ? undefined : `${component.title || component.name} ${t('card.open')}`,
+          onClick: residual ? undefined : () => props.onOpen(component.dir),
+          onKeyDown: residual ? undefined : (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); props.onOpen(component.dir) }
+          },
+        },
           h('span', { className: 'np-card__icon' },
             component.icon && component.icon.dataUrl
               ? h('img', { src: component.icon.dataUrl, alt: '' })
