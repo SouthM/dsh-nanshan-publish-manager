@@ -1,0 +1,5 @@
+v1.0.54
+
+- 修复「本地安装」EUNSUPPORTEDPROTOCOL 根因：profile 由 pnpm 管理，而 npm 11 不支持 profile 里既有的 link: 依赖
+- 安装改用 pnpm：新增 resolvePnpm()/runPnpm()，安装动作由 `pnpm add <组件目录>` 完成（pnpm 支持 link:/file:）
+- 仅手动注册 dsh.profile.bundles，依赖写入交给 pnpm；同步更新中英文 install.intro 文案

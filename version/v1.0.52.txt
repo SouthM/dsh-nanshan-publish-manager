@@ -1,0 +1,3 @@
+v1.0.52
+
+- 修复「本地安装」报 EUNSUPPORTEDPROTOCOL：profile 依赖协议从 `link:` 改为 `file:`，兼容旧版 npm（`file:` 自 npm 2+ 起支持，组件发现逻辑同时识别两者）

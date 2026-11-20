@@ -60,6 +60,19 @@ window.__ModuleLoader__.load({
         'card.publishTime': '发布时间',
         'card.description': '插件描述',
         'card.records': '{n} 条记录',
+        'card.install': '本地安装',
+        'install.title': '安装开发版本到本地',
+        'install.intro': '选择要安装到的 DSH profile。插件会注册 bundle，并用 pnpm 安装本地目录。',
+        'install.directory': '插件目录',
+        'install.loading': '正在读取 profile…',
+        'install.empty': '没有找到可用的 profile。',
+        'install.current': '当前关联',
+        'install.active': '当前激活',
+        'install.confirm': '安装',
+        'install.busy': '安装中…',
+        'install.needProfile': '请选择一个目标 profile。',
+        'install.success': '已安装 v{version} 到 profile「{profile}」。重启 DSH 后可在「插件 > 已安装插件」看到。',
+        'install.error': '安装失败',
         'card.never': '还没有发布过',
         'card.lastPublish': '最近发布 v{version} · {time}',
         'card.open': '详情及发布',
@@ -478,6 +491,19 @@ window.__ModuleLoader__.load({
         'card.publishTime': 'Published at',
         'card.description': 'Description',
         'card.records': '{n} records',
+        'card.install': 'Install locally',
+        'install.title': 'Install dev version locally',
+        'install.intro': 'Choose the DSH profile to install into. The plugin registers the bundle and installs the local directory with pnpm.',
+        'install.directory': 'Directory',
+        'install.loading': 'Reading profiles…',
+        'install.empty': 'No profiles found.',
+        'install.current': 'Current link',
+        'install.active': 'Active',
+        'install.confirm': 'Install',
+        'install.busy': 'Installing…',
+        'install.needProfile': 'Choose a target profile.',
+        'install.success': 'Installed v{version} into profile “{profile}”. Restart DSH to see it under Plugins > Installed plugins.',
+        'install.error': 'Install failed',
         'card.never': 'Never published',
         'card.lastPublish': 'Last publish v{version} · {time}',
         'card.open': 'Details & Publish',
@@ -1156,6 +1182,19 @@ window.__ModuleLoader__.load({
 .np-source__residual h3{margin:0 0 4px;font-size:12px;font-weight:600;color:var(--np-bad)}
 .np-source__residual p{margin:2px 0;font-size:11.5px;line-height:1.6;color:var(--np-ink-soft);word-break:break-word}
 .np-source__residual .np-btn{margin-top:6px}
+.np-dialog.np-dialog--install{width:min(520px,100%)}
+.np-dialog--install .np-info__head h2{margin:0;flex:1;min-width:0}
+.np-install__subject{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 12px;padding:10px 12px;border:1px solid var(--np-line);border-radius:9px;background:var(--np-sheet2)}
+.np-install__dir{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px;padding:8px 10px;border:1px solid var(--np-line);border-radius:9px;background:var(--np-sheet2)}
+.np-install__dir-label{flex:none;font-size:12px;color:var(--np-ink-soft);padding-top:1px}
+.np-install__dir-path{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;color:var(--np-ink);word-break:break-all}
+.np-install__dir .np-btn{flex:none}
+.np-install__list{display:flex;flex-direction:column;gap:8px;margin:4px 0 0;max-height:280px;overflow-y:auto}
+.np-install__option{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--np-line);border-radius:9px;background:var(--np-sheet);text-align:left;cursor:pointer;font-family:inherit}
+.np-install__option:hover{border-color:var(--np-line-strong)}
+.np-install__option.is-on{border-color:color-mix(in srgb,var(--np-accent) 55%,var(--np-line));background:color-mix(in srgb,var(--np-accent) 8%,transparent)}
+.np-install__option-name{font-size:13px;font-weight:600;color:var(--np-ink)}
+.np-install__option-dir{flex-basis:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;color:var(--np-ink-soft);word-break:break-all}
 .np-dialog--info .np-info__head h2{margin:0;flex:1;min-width:0}
 .np-dialog--info .np-info__intro{margin:8px 0 4px}
 .np-modal--records{display:block;padding:20px}
@@ -2174,6 +2213,82 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function InstallDialog(props) {
+      const [t] = useText()
+      const [copied, setCopied] = React.useState(false)
+      const component = props.component || {}
+      React.useEffect(() => {
+        if (!props.open) return
+        const onKeyDown = (event) => { if (event.key === 'Escape') props.onClose() }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+      }, [props.open, props.onClose])
+      async function copyDir() {
+        if (!component.dir) return
+        try {
+          await navigator.clipboard.writeText(component.dir)
+          setCopied(true)
+          window.setTimeout(() => setCopied(false), 2000)
+        } catch {
+          // 剪贴板可能不可用
+        }
+      }
+      if (!props.open) return null
+      const profiles = Array.isArray(props.profiles) ? props.profiles : []
+      const status = props.status || 'idle'
+      const busy = Boolean(props.busy)
+      return h('div', { className: 'np-modal', role: 'presentation', onMouseDown: (event) => { if (event.target === event.currentTarget && !busy) props.onClose() } },
+        h('div', { className: 'np-dialog np-dialog--install', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'np-install-title' },
+          h('div', { className: 'np-info__head' },
+            h('h2', { id: 'np-install-title' }, t('install.title')),
+            h('button', { type: 'button', className: 'np-iconbtn', onClick: props.onClose, disabled: busy, 'aria-label': t('action.close') }, h(Glyph, { name: 'close', size: 14 })),
+          ),
+          h('p', { className: 'np-info__intro' }, t('install.intro')),
+          h('div', { className: 'np-install__subject' },
+            h('span', { className: 'np-source__name np-mono' }, component.name || component.dir || '—'),
+            h('span', { className: 'np-chip' }, `v${component.version || '0.0.0'}`),
+          ),
+          h('div', { className: 'np-install__dir' },
+            h('span', { className: 'np-install__dir-label' }, t('install.directory')),
+            h('code', { className: 'np-install__dir-path np-mono' }, component.dir || '—'),
+            h('button', { type: 'button', className: 'np-btn np-btn--ghost np-btn--small', onClick: copyDir, disabled: busy || !component.dir, 'aria-label': t('action.copy') }, copied ? t('action.copied') : t('action.copy')),
+          ),
+          status === 'loading'
+            ? h('p', { className: 'np-hint' }, t('install.loading'))
+            : profiles.length === 0
+              ? h('p', { className: 'np-hint' }, t('install.empty'))
+              : h('div', { className: 'np-install__list', role: 'radiogroup' },
+                profiles.map((profile) => {
+                  const selected = props.selected === profile.dir
+                  return h('button', {
+                    key: profile.dir,
+                    type: 'button',
+                    role: 'radio',
+                    'aria-checked': selected,
+                    className: `np-install__option${selected ? ' is-on' : ''}`,
+                    disabled: busy,
+                    onClick: () => props.onSelect(profile.dir),
+                  },
+                    h('span', { className: 'np-install__option-name' }, profile.name),
+                    profile.active ? h('span', { className: 'np-chip np-chip--accent' }, t('install.active')) : null,
+                    selected ? h('span', { className: 'np-chip np-chip--ok' }, t('install.current')) : null,
+                    h('span', { className: 'np-install__option-dir np-mono' }, profile.dir),
+                  )
+                }),
+              ),
+          h('div', { className: 'np-dialog__actions' },
+            h('button', { type: 'button', className: 'np-btn np-btn--ghost', onClick: props.onClose, disabled: busy }, t('action.close')),
+            h('button', {
+              type: 'button',
+              className: 'np-btn np-btn--primary',
+              disabled: busy || !props.selected,
+              onClick: props.onConfirm,
+            }, busy ? h(Glyph, { name: 'clock', size: 14, className: 'np-spin' }) : h(Glyph, { name: 'box', size: 14 }), busy ? t('install.busy') : t('install.confirm')),
+          ),
+        ),
+      )
+    }
+
     function SettingsModal(props) {
       const [t, tr] = useText()
       const [group, setGroup] = React.useState('tokens')
@@ -2434,6 +2549,13 @@ window.__ModuleLoader__.load({
           h('div', { className: 'np-card__field' },
             h('span', { className: 'np-card__field-label' }, t('card.devVersion')),
             h('span', { className: 'np-card__field-value' }, residual ? '—' : `v${component.version || '0.0.0'}`),
+            !residual
+              ? h('button', {
+                type: 'button',
+                className: 'np-card__recordlink',
+                onClick: () => props.onInstall(component),
+              }, t('card.install'))
+              : null,
           ),
           h('div', { className: 'np-card__field' },
             h('span', { className: 'np-card__field-label' }, t('card.latestRelease')),
@@ -2503,6 +2625,11 @@ window.__ModuleLoader__.load({
       const [sourceStatus, setSourceStatus] = React.useState('idle')
       const [sourceError, setSourceError] = React.useState('')
       const [pluginVersion, setPluginVersion] = React.useState(null)
+      const [installComponent, setInstallComponent] = React.useState(null)
+      const [installProfiles, setInstallProfiles] = React.useState(null)
+      const [installProfilesStatus, setInstallProfilesStatus] = React.useState('idle')
+      const [installSelected, setInstallSelected] = React.useState('')
+      const [installBusy, setInstallBusy] = React.useState(false)
       const loginPollRef = React.useRef(null)
 
       React.useEffect(() => {
@@ -2591,6 +2718,59 @@ window.__ModuleLoader__.load({
 
       function openSource(component) {
         setSourceComponent(component)
+      }
+
+      async function openInstall(component) {
+        setInstallComponent(component)
+        setInstallProfiles(null)
+        setInstallProfilesStatus('loading')
+        setInstallSelected('')
+        setInstallBusy(false)
+        try {
+          const [profilesData, provData] = await Promise.all([
+            apiGet('/profiles'),
+            apiGet(`/provenance?dir=${encodeURIComponent(component.dir)}`).catch(() => null),
+          ])
+          const profiles = Array.isArray(profilesData.profiles) ? profilesData.profiles : []
+          setInstallProfiles(profiles)
+          setInstallProfilesStatus('ready')
+          const sources = provData && Array.isArray(provData.sources) ? provData.sources : []
+          for (const source of sources) {
+            if (typeof source.profileFile === 'string' && source.profileFile !== '') {
+              const linked = profiles.find((profile) => profile.packageFile === source.profileFile)
+              if (linked) { setInstallSelected(linked.dir); break }
+            }
+          }
+        } catch {
+          setInstallProfiles([])
+          setInstallProfilesStatus('error')
+        }
+      }
+
+      function closeInstall() {
+        setInstallComponent(null)
+        setInstallProfiles(null)
+        setInstallProfilesStatus('idle')
+        setInstallSelected('')
+        setInstallBusy(false)
+      }
+
+      async function doInstall() {
+        if (!installComponent || installBusy) return
+        if (!installSelected) {
+          props.showToast('error', t('install.needProfile'))
+          return
+        }
+        setInstallBusy(true)
+        try {
+          const data = await apiPost('/install', { dir: installComponent.dir, profileDir: installSelected })
+          props.showToast('ok', tr('install.success', { version: data.version || '', profile: data.profileName || installSelected }))
+          closeInstall()
+        } catch (failure) {
+          props.showToast('error', failure && failure.message ? failure.message : t('install.error'))
+        } finally {
+          setInstallBusy(false)
+        }
       }
 
       async function revealSource(path) {
@@ -2752,6 +2932,7 @@ window.__ModuleLoader__.load({
                     component,
                     onOpen: props.onOpen,
                     onSource: openSource,
+                    onInstall: openInstall,
                   })),
                 ),
             ),
@@ -2777,6 +2958,17 @@ window.__ModuleLoader__.load({
             onRemoveTarget: removeSourceTarget,
           })
           : null,
+        h(InstallDialog, {
+          open: installComponent !== null,
+          component: installComponent,
+          profiles: installProfiles,
+          status: installProfilesStatus,
+          selected: installSelected,
+          busy: installBusy,
+          onSelect: setInstallSelected,
+          onConfirm: doInstall,
+          onClose: closeInstall,
+        }),
         h(Toast, { toast: props.toast }),
       )
     }

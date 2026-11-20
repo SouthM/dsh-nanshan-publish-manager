@@ -1,0 +1,5 @@
+v1.0.55
+
+- 修复「本地安装」ERR_PNPM_UNEXPECTED_STORE：DSH 桌面端用 pnpm 11（store v11），而系统 pnpm 为 10（store v10），store 版本不匹配
+- 新增 detectProfilePnpmMajor()：从 profile 的 node_modules/.modules.yaml 读取 store 版本，回退扫描 ~/Library/pnpm/store 下最大 v{major}
+- 新增 resolveCorepack()：安装时优先通过 corepack 用 `pnpm@{major}` 运行，确保与 node_modules 的 store 版本一致；corepack 不可用时回退系统 pnpm

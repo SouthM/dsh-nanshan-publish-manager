@@ -1,0 +1,4 @@
+v1.0.53
+
+- 修复「本地安装」仍报 EUNSUPPORTEDPROTOCOL：profile 内既有的 link: 依赖（旧版 npm 不支持）在裸 `npm install` 时会被重新解析而失败
+- 改为 `npm install --no-save --no-package-lock --no-audit --no-fund <组件目录>`，只安装目标目录，避免重新解析其它依赖

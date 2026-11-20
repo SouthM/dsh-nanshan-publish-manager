@@ -1,0 +1,6 @@
+v1.0.51
+
+- 组件卡片「开发版本」字段末尾新增「本地安装」文字链接，点击后弹出 profile 选择弹窗
+- 安装动作：向目标 profile 的 package.json 写入 `link:<组件目录>` 依赖、把包名注册进 `dsh.profile.bundles`，并在该 profile 目录执行 `npm install`
+- 弹窗展示所有 profile（DSH_PROFILE_DIR 标记「当前激活」），已通过 profile link 关联的组件自动高亮其关联 profile
+- 后端新增 GET /profiles 与 POST /install 接口（仅本机、同源写入）

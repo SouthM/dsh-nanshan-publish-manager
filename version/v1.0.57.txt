@@ -1,0 +1,4 @@
+v1.0.57
+
+- 澄清「本地安装」成功后提示：新 bundle 需重启 DSH 才会被 launcher 重新加载（dsh.profile.bundles 为启动时读取），故把提示改为「重启 DSH 后可在『插件 > 已安装插件』看到」
+- 同步更新中英文 install.success 文案

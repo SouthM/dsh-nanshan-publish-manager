@@ -84,6 +84,8 @@ export function apply(ctx, config = {}) {
   let discoveryCache = { at: 0, value: null }
   let overviewCache = { at: 0, value: null }
   let npmCache = { at: 0, value: null }
+  let pnpmCache = { at: 0, value: null }
+  let corepackCache = { at: 0, value: null }
   const downloadsCache = new Map()
   const totalsCache = new Map()
   let npmrcRegistry = null
@@ -305,6 +307,147 @@ export function apply(ctx, config = {}) {
       cwd,
       timeoutMs,
       env: { ...childEnv(npm.executable), ...(extraEnv || {}) },
+    })
+  }
+
+  async function resolvePnpm(force = false) {
+    if (!force && pnpmCache.value && Date.now() - pnpmCache.at < 60_000) return pnpmCache.value
+    const candidates = []
+    const seen = new Set()
+    const add = (candidate) => {
+      if (!candidate || seen.has(candidate)) return
+      seen.add(candidate)
+      candidates.push(candidate)
+    }
+    const pnpmName = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
+    // pnpm 通常与 node/npm 同目录，优先复用 npm 的 binDir
+    const npm = await resolveNpm()
+    if (npm.available && npm.binDir) add(join(npm.binDir, pnpmName))
+    for (const dir of String(process.env.PATH || '').split(delimiter)) {
+      if (dir) add(join(dir, pnpmName))
+    }
+    if (process.platform === 'win32') {
+      if (process.env.APPDATA) add(join(process.env.APPDATA, 'npm', 'pnpm.cmd'))
+      if (process.env.ProgramFiles) add(join(process.env.ProgramFiles, 'nodejs', 'pnpm.cmd'))
+      if (process.env.NVM_SYMLINK) add(join(process.env.NVM_SYMLINK, 'pnpm.cmd'))
+    }
+    add('/opt/homebrew/bin/pnpm')
+    add('/usr/local/bin/pnpm')
+    add('/usr/bin/pnpm')
+    add(join(homedir(), '.volta/bin/pnpm'))
+    add(join(homedir(), '.local/bin/pnpm'))
+    add(join(homedir(), '.bun/bin/pnpm'))
+    try {
+      const nvmRoot = join(homedir(), '.nvm/versions/node')
+      const versions = await readdir(nvmRoot)
+      versions.sort((left, right) => compareVersions(right.replace(/^v/, ''), left.replace(/^v/, '')))
+      for (const version of versions.slice(0, 4)) add(join(nvmRoot, version, 'bin/pnpm'))
+    } catch {
+      // No nvm installation.
+    }
+    for (const candidate of candidates) {
+      try {
+        await access(candidate, constants.X_OK)
+        const info = await stat(candidate)
+        if (!info.isFile() && !info.isSymbolicLink()) continue
+        const probe = await runProcess(candidate, ['--version'], { timeoutMs: 15_000, env: childEnv(candidate) })
+        const version = probe.ok ? firstLine(probe.stdout) || firstLine(probe.output) : null
+        if (version) {
+          const value = { available: true, executable: candidate, version, binDir: dirname(candidate) }
+          pnpmCache = { at: Date.now(), value }
+          return value
+        }
+      } catch {
+        // Try the next candidate path.
+      }
+    }
+    const value = { available: false, executable: null, version: null, binDir: null }
+    pnpmCache = { at: Date.now(), value }
+    return value
+  }
+
+  async function resolveCorepack(force = false) {
+    if (!force && corepackCache.value && Date.now() - corepackCache.at < 60_000) return corepackCache.value
+    const candidates = []
+    const seen = new Set()
+    const add = (candidate) => {
+      if (!candidate || seen.has(candidate)) return
+      seen.add(candidate)
+      candidates.push(candidate)
+    }
+    const corepackName = process.platform === 'win32' ? 'corepack.cmd' : 'corepack'
+    const npm = await resolveNpm()
+    if (npm.available && npm.binDir) add(join(npm.binDir, corepackName))
+    for (const dir of String(process.env.PATH || '').split(delimiter)) {
+      if (dir) add(join(dir, corepackName))
+    }
+    for (const candidate of candidates) {
+      try {
+        await access(candidate, constants.X_OK)
+        const info = await stat(candidate)
+        if (!info.isFile() && !info.isSymbolicLink()) continue
+        const probe = await runProcess(candidate, ['--version'], { timeoutMs: 15_000, env: childEnv(candidate) })
+        const version = probe.ok ? firstLine(probe.stdout) || firstLine(probe.output) : null
+        if (version) {
+          const value = { available: true, executable: candidate, version, binDir: dirname(candidate) }
+          corepackCache = { at: Date.now(), value }
+          return value
+        }
+      } catch {
+        // Try the next candidate path.
+      }
+    }
+    const value = { available: false, executable: null, version: null, binDir: null }
+    corepackCache = { at: Date.now(), value }
+    return value
+  }
+
+  async function detectProfilePnpmMajor(profileDir) {
+    try {
+      const text = await readFile(join(profileDir, 'node_modules', '.modules.yaml'), 'utf8')
+      const match = text.match(/store[\\/]v(\d+)/)
+      if (match && match[1]) return match[1]
+    } catch {
+      // 无 .modules.yaml（全新 profile 或非 pnpm 管理）
+    }
+    try {
+      const storeRoot = join(homedir(), 'Library', 'pnpm', 'store')
+      const entries = await readdir(storeRoot)
+      let maxMajor = 0
+      for (const entry of entries) {
+        const match = entry.match(/^v(\d+)$/)
+        if (match) maxMajor = Math.max(maxMajor, parseInt(match[1], 10))
+      }
+      if (maxMajor > 0) return String(maxMajor)
+    } catch {
+      // 忽略
+    }
+    return null
+  }
+
+  async function runPnpm(args, { cwd, timeoutMs = 60_000, extraEnv, pnpmMajor } = {}) {
+    // 优先 corepack：用与 profile 的 node_modules 同 store 版本的 pnpm（DSH 桌面端用 pnpm 11 / store v11）
+    if (pnpmMajor) {
+      const corepack = await resolveCorepack()
+      if (corepack.available) {
+        return runProcess(corepack.executable, [`pnpm@${pnpmMajor}`, ...args], {
+          cwd,
+          timeoutMs,
+          env: { ...childEnv(corepack.executable), ...(extraEnv || {}) },
+        })
+      }
+    }
+    const pnpm = await resolvePnpm()
+    if (!pnpm.available) {
+      return {
+        ok: false, code: null, signal: null, stdout: '', stderr: '找不到 pnpm 可执行文件。',
+        output: '找不到 pnpm 可执行文件。', timedOut: false, truncated: false, durationMs: 0, error: 'pnpm-not-found',
+      }
+    }
+    return runProcess(pnpm.executable, args, {
+      cwd,
+      timeoutMs,
+      env: { ...childEnv(pnpm.executable), ...(extraEnv || {}) },
     })
   }
 
@@ -2280,6 +2423,59 @@ export function apply(ctx, config = {}) {
     return value
   }
 
+  async function listProfiles() {
+    const profileDirs = []
+    const addProfile = (dir) => {
+      if (typeof dir !== 'string' || dir === '' || profileDirs.includes(dir)) return
+      profileDirs.push(dir)
+    }
+    const activeDir = process.env.DSH_PROFILE_DIR
+    addProfile(activeDir)
+    try {
+      const root = join(home, 'profiles')
+      for (const entry of await readdir(root, { withFileTypes: true })) {
+        if (entry.isDirectory()) addProfile(join(root, entry.name))
+      }
+    } catch {
+      // A customized DSH_HOME may keep profiles elsewhere; the env value still applies.
+    }
+    const profiles = profileDirs.slice(0, 24).map((dir) => ({
+      dir,
+      name: basename(dir),
+      packageFile: join(dir, 'package.json'),
+      active: Boolean(activeDir && resolve(activeDir) === resolve(dir)),
+    }))
+    return { profiles }
+  }
+
+  async function installToProfile(rawDir, rawProfileDir) {
+    const { dir, pkg } = await requireComponentDir(rawDir)
+    const name = typeof pkg.name === 'string' && pkg.name !== '' ? pkg.name : basename(dir)
+    const version = typeof pkg.version === 'string' ? pkg.version : ''
+    const profileDir = expandHome(String(rawProfileDir || ''))
+    if (!profileDir || !isAbsolute(profileDir)) throw httpError(400, '请选择一个有效的目标 profile。')
+    const profileFile = join(profileDir, 'package.json')
+    let profilePkg
+    try {
+      profilePkg = JSON.parse(await readFile(profileFile, 'utf8'))
+    } catch {
+      throw httpError(404, '该 profile 没有可读的 package.json。')
+    }
+    if (!isPlainObject(profilePkg)) throw httpError(400, 'profile 的 package.json 不是有效对象。')
+    if (!isPlainObject(profilePkg.dsh)) profilePkg.dsh = {}
+    if (!isPlainObject(profilePkg.dsh.profile)) profilePkg.dsh.profile = {}
+    if (!Array.isArray(profilePkg.dsh.profile.bundles)) profilePkg.dsh.profile.bundles = []
+    if (!profilePkg.dsh.profile.bundles.includes(name)) profilePkg.dsh.profile.bundles.push(name)
+    await writeFile(profileFile, `${JSON.stringify(profilePkg, null, 2)}\n`, 'utf8')
+    // profile 由 pnpm 管理（含 pnpm-lock.yaml）；pnpm 支持 link:/file:，而 npm 11 不支持 link: 会报 EUNSUPPORTEDPROTOCOL
+    const pnpmMajor = await detectProfilePnpmMajor(profileDir)
+    const result = await runPnpm(['add', dir], { cwd: profileDir, timeoutMs: 180_000, pnpmMajor })
+    if (!result.ok) {
+      throw httpError(500, `pnpm add 失败：${firstLine(result.stderr || result.output) || '未知错误'}`)
+    }
+    return { name, version, dir, profileDir, profileName: basename(profileDir) }
+  }
+
   async function handler(request, response) {
     let url
     try {
@@ -2329,6 +2525,9 @@ export function apply(ctx, config = {}) {
         if (pathname === `${API}/plugin-version`) {
           return sendJson(response, 200, { ok: true, ...(await pluginVersionInfo()) })
         }
+        if (pathname === `${API}/profiles`) {
+          return sendJson(response, 200, { ok: true, ...(await listProfiles()) })
+        }
         return sendJson(response, 404, { ok: false, code: 'not-found', message: '未知的发布管理接口。' })
       }
       if (request.method !== 'POST') {
@@ -2374,6 +2573,9 @@ export function apply(ctx, config = {}) {
         if (action === 'delete') return sendJson(response, 200, { ok: true, tokens: await deleteToken(body || {}) })
         if (action === 'reveal') return sendJson(response, 200, { ok: true, ...(await revealToken(body || {})) })
         return sendJson(response, 400, { ok: false, code: 'bad-action', message: '未知的令牌操作。' })
+      }
+      if (pathname === `${API}/install`) {
+        return sendJson(response, 200, { ok: true, ...(await installToProfile(body && body.dir, body && body.profileDir)) })
       }
       return sendJson(response, 404, { ok: false, code: 'not-found', message: '未知的发布管理接口。' })
     } catch (error) {
